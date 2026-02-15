@@ -1,12 +1,12 @@
 {
-  "rewrites": [
-    {
-      "source": "/water-delivery/:match*",
-      "destination": "https://water-delivery-ecoexpress.vercel.app/:match*"
-    },
-    {
-      "source": "/trip-calculator/:match*",
-      "destination": "https://trip-calculator-ecoexpress.vercel.app/:match*"
-    }
-  ]
+    "rewrites": [
+        {
+            "source": "/water-delivery/:path*",
+            "destination": "https://ecoexpress-water.vercel.app/:path*"
+        },
+        {
+            "source": "/trip-calculator/:path*",
+            "destination": "https://trip-calculator-dusky.vercel.app/:path*"
+        }
+    ]
 }
