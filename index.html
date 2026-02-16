@@ -17,24 +17,44 @@
 <body>
 
     <header class="header">
-        <a href="/water-delivery" class="cta-button primary-cta">
-            Book Water <span>&rarr;</span>
-        </a>
+        <!-- Header actions moved to main content for better mobile accessibility -->
     </header>
 
     <main class="main-content">
-        <div class="logo-box fade-in-up">
+        <a href="/" class="logo-box fade-in-up">
             <img src="logo-v2.png" alt="EcoExpress Logistics Logo" class="logo">
-        </div>
+        </a>
 
         <div class="hero-text fade-in-up delay-1">
             <h1 class="brand-title">EcoExpress <span class="highlight">Logistics</span></h1>
             <p class="subtitle">Sustainable & Efficient Logistics Solutions</p>
         </div>
 
-        <div class="action-container fade-in-up delay-2">
-            <a href="/trip-calculator" class="trip-link">
-                Calculate Trip Cost &rarr;
+        <div class="action-grid fade-in-up delay-2">
+            <a href="/water-delivery" class="cta-button primary-cta">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                    <path
+                        d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" />
+                </svg>
+                <span>Book Water</span>
+            </a>
+
+            <a href="/trip-calculator" class="cta-button secondary-cta">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                    <line x1="16" x2="16" y1="2" y2="6" />
+                    <line x1="8" x2="8" y1="2" y2="6" />
+                    <line x1="3" x2="21" y1="10" y2="10" />
+                    <path d="M8 14h.01" />
+                    <path d="M12 14h.01" />
+                    <path d="M16 14h.01" />
+                    <path d="M8 18h.01" />
+                    <path d="M12 18h.01" />
+                    <path d="M16 18h.01" />
+                </svg>
+                <span>Calculate Trip</span>
             </a>
         </div>
     </main>
