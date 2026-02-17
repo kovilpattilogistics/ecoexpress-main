@@ -23,13 +23,23 @@
 <body>
 
     <header class="header">
-        <select id="lang-selector" class="lang-selector" aria-label="Select Language">
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-            <option value="de">Deutsch</option>
-        </select>
+        <!-- Language Switcher injected via JS/CSS -->
     </header>
+
+    <div id="language-widget" class="language-widget">
+        <!-- Interactive Status Pill -->
+        <div class="status-pill">
+            <div id="btn-en" class="lang-option active" onclick="setEcoLang('en')">
+                <span class="flag">🇺🇸</span> EN
+            </div>
+            <span class="divider">|</span>
+            <div id="btn-ta" class="lang-option" onclick="setEcoLang('ta')">
+                <span class="text-ta">தமிழ்</span>
+            </div>
+        </div>
+        <!-- Small Hint Text -->
+        <div id="lang-hint" class="lang-hint">Switch to Tamil</div>
+    </div>
 
     <main class="main-content">
         <a href="/" class="logo-box fade-in-up">
@@ -37,8 +47,8 @@
         </a>
 
         <div class="hero-text fade-in-up delay-1">
-            <h1 class="brand-title">EcoExpress <span class="highlight">Logictics</span></h1>
-            <p class="subtitle">Sustainable & Efficient Logictics Solutions</p>
+            <h1 class="brand-title" data-i18n="title">EcoExpress <span class="highlight">Logictics</span></h1>
+            <p class="subtitle" data-i18n="subtitle">Sustainable & Efficient Logictics Solutions</p>
         </div>
 
         <div class="action-grid fade-in-up delay-2">
@@ -48,7 +58,7 @@
                     <path
                         d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" />
                 </svg>
-                <span>Book Water</span>
+                <span data-i18n="cta_water">Book Water</span>
             </a>
 
             <a href="/trip-calculator" id="cta-trip" class="cta-button secondary-cta">
@@ -65,21 +75,39 @@
                     <path d="M12 18h.01"></path>
                     <path d="M16 18h.01"></path>
                 </svg>
-                <span>Calculate Trip</span>
+                <span data-i18n="cta_trip">Calculate Trip</span>
             </a>
         </div>
     </main>
 
     <footer class="footer fade-in">
-        <p class="powered-by">POWERED BY 100% ELECTRIC FLEET</p>
+        <p class="powered-by" data-i18n="powered_by">POWERED BY 100% ELECTRIC FLEET</p>
         <p class="copyright">&copy; 2026 ECOEXPRESS LOGICTICS</p>
     </footer>
 
     <script>
+        const translations = {
+            en: {
+                title: 'EcoExpress <span class="highlight">Logictics</span>',
+                subtitle: 'Sustainable & Efficient Logictics Solutions',
+                cta_water: 'Book Water',
+                cta_trip: 'Calculate Trip',
+                powered_by: 'POWERED BY 100% ELECTRIC FLEET'
+            },
+            ta: {
+                title: 'EcoExpress <span class="highlight">Logistics</span>', // Kept in English
+                subtitle: 'வேகமான டெலிவரி... விவேகமான தேர்வு! <br> இயற்கையோடு இணைந்த நவீன சேவை.',
+                cta_water: 'கேன் வாட்டர் ஆர்டர்',
+                cta_trip: 'வாகன வாடகை விபரம்',
+                powered_by: 'மாசற்ற சூழல், மகத்தான சேவை - 100% எலக்ட்ரிக் வாகனங்கள்!'
+            }
+        };
+
         // Language Helpers
         function setEcoLang(lang) {
             localStorage.setItem('eco_lang', lang);
             document.cookie = `eco_lang=${lang}; Path=/; SameSite=Lax; Secure; Max-Age=31536000`; // 1 year
+            applyLanguage(lang);
             updateLinks(lang);
         }
 
@@ -95,6 +123,33 @@
             return 'en';
         }
 
+        function applyLanguage(lang) {
+            const t = translations[lang] || translations['en'];
+
+            // Text Content Updates
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.innerHTML = t[key];
+            });
+
+            // Update UI State
+            const btnEn = document.getElementById('btn-en');
+            const btnTa = document.getElementById('btn-ta');
+            const hint = document.getElementById('lang-hint');
+
+            if (btnEn && btnTa) {
+                if (lang === 'ta') {
+                    btnTa.classList.add('active');
+                    btnEn.classList.remove('active');
+                    if (hint) hint.textContent = "Switch to English";
+                } else {
+                    btnEn.classList.add('active');
+                    btnTa.classList.remove('active');
+                    if (hint) hint.textContent = "Switch to Tamil";
+                }
+            }
+        }
+
         function updateLinks(lang) {
             const waterLink = document.getElementById('cta-water');
             const tripLink = document.getElementById('cta-trip');
@@ -105,17 +160,10 @@
 
         // Initialization
         document.addEventListener('DOMContentLoaded', () => {
-            const currentLang = getEcoLang();
-            const selector = document.getElementById('lang-selector');
+            let currentLang = getEcoLang();
+            // Default to En if something random
+            if (!translations[currentLang]) currentLang = 'en';
 
-            if (selector) {
-                selector.value = currentLang;
-                selector.addEventListener('change', (e) => {
-                    setEcoLang(e.target.value);
-                });
-            }
-
-            // Ensure persistence if URL param was present but storage wasn't set
             setEcoLang(currentLang);
         });
     </script>

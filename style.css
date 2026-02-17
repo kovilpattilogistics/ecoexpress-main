@@ -42,31 +42,75 @@ body {
     z-index: 10;
 }
 
-.lang-selector {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-family: var(--font-family);
-    font-size: 0.9rem;
+/* Language Widget */
+.language-widget {
+    position: absolute;
+    top: 25px;
+    right: 5%;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Center pill and hint */
+    gap: 4px;
+    /* Minimal gap */
+}
+
+/* Status Pill - The CTA */
+.status-pill {
+    background: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #bbb;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.status-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.lang-option {
+    transition: all 0.3s;
     cursor: pointer;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    outline: none;
-    transition: all 0.3s ease;
+    /* Clickable */
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.lang-selector:hover,
-.lang-selector:focus {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.4);
+.lang-option:hover {
+    color: #666;
 }
 
-.lang-selector option {
-    background: #333;
-    /* Dark background for options */
-    color: white;
+.lang-option.active {
+    color: #333;
+    /* Dark/Black for active */
+    font-weight: 800;
+}
+
+.divider {
+    color: #ddd;
+    font-weight: 300;
+    font-size: 1.2rem;
+}
+
+/* Small Hint Text */
+.lang-hint {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 1s ease;
 }
 
 /* Action Grid */
