@@ -5,6 +5,22 @@
             "destination": "https://ecoexpress-water.vercel.app/:path*"
         },
         {
+            "source": "/trip-calculator/logo.png",
+            "destination": "https://trip-calculator-dusky.vercel.app/logo.png"
+        },
+        {
+            "source": "/trip-calculator/hero-truck.png",
+            "destination": "https://trip-calculator-dusky.vercel.app/hero-truck.png"
+        },
+        {
+            "source": "/trip-calculator/hero-warehouse.png",
+            "destination": "https://trip-calculator-dusky.vercel.app/hero-warehouse.png"
+        },
+        {
+            "source": "/trip-calculator/hero-logistics.png",
+            "destination": "https://trip-calculator-dusky.vercel.app/hero-logistics.png"
+        },
+        {
             "source": "/trip-calculator/:path*",
             "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator/:path*"
         }
