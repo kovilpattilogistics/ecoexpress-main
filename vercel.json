@@ -6,7 +6,7 @@
         },
         {
             "source": "/trip-calculator/:path*",
-            "destination": "https://ecoexpress-trip.vercel.app/:path*"
+            "destination": "https://trip-calculator-dusky.vercel.app/:path*"
         }
     ]
 }
