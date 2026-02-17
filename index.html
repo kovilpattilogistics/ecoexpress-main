@@ -23,7 +23,12 @@
 <body>
 
     <header class="header">
-        <!-- Header actions moved to main content for better mobile accessibility -->
+        <select id="lang-selector" class="lang-selector" aria-label="Select Language">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+        </select>
     </header>
 
     <main class="main-content">
@@ -37,7 +42,7 @@
         </div>
 
         <div class="action-grid fade-in-up delay-2">
-            <a href="/water-delivery" class="cta-button primary-cta">
+            <a href="/water-delivery" id="cta-water" class="cta-button primary-cta">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                     <path
@@ -46,7 +51,7 @@
                 <span>Book Water</span>
             </a>
 
-            <a href="/trip-calculator" class="cta-button secondary-cta">
+            <a href="/trip-calculator" id="cta-trip" class="cta-button secondary-cta">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -69,6 +74,51 @@
         <p class="powered-by">POWERED BY 100% ELECTRIC FLEET</p>
         <p class="copyright">&copy; 2026 ECOEXPRESS LOGICTICS</p>
     </footer>
+
+    <script>
+        // Language Helpers
+        function setEcoLang(lang) {
+            localStorage.setItem('eco_lang', lang);
+            document.cookie = `eco_lang=${lang}; Path=/; SameSite=Lax; Secure; Max-Age=31536000`; // 1 year
+            updateLinks(lang);
+        }
+
+        function getEcoLang() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('lang')) return urlParams.get('lang');
+
+            if (localStorage.getItem('eco_lang')) return localStorage.getItem('eco_lang');
+
+            const match = document.cookie.match(new RegExp('(^| )eco_lang=([^;]+)'));
+            if (match) return match[2];
+
+            return 'en';
+        }
+
+        function updateLinks(lang) {
+            const waterLink = document.getElementById('cta-water');
+            const tripLink = document.getElementById('cta-trip');
+
+            if (waterLink) waterLink.href = `/water-delivery?lang=${lang}`;
+            if (tripLink) tripLink.href = `/trip-calculator?lang=${lang}`;
+        }
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentLang = getEcoLang();
+            const selector = document.getElementById('lang-selector');
+
+            if (selector) {
+                selector.value = currentLang;
+                selector.addEventListener('change', (e) => {
+                    setEcoLang(e.target.value);
+                });
+            }
+
+            // Ensure persistence if URL param was present but storage wasn't set
+            setEcoLang(currentLang);
+        });
+    </script>
 
 </body>
 
