@@ -1,0 +1,11 @@
+{
+    "name": "ecoexpress-main",
+    "private": true,
+    "version": "1.0.0",
+    "scripts": {
+        "build": "npm run build:water && npm run build:trip && npm run build:landing",
+        "build:water": "cd water-delivery && npm install && npm run build",
+        "build:trip": "cd trip-calculator && npm install && npm run build",
+        "build:landing": "mkdir -p dist && cp index.html style.css manifest.json logo-v2.png app-icon.png background.jpg background_ev_fleet.png icon-calculator.png icon-water.png dist/"
+    }
+}

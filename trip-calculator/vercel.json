@@ -1,0 +1,36 @@
+{
+  "rewrites": [
+    {
+      "source": "/trip-calculator/assets/(.*)",
+      "destination": "/assets/$1"
+    },
+    {
+      "source": "/trip-calculator/logo.png",
+      "destination": "/logo.png"
+    },
+    {
+      "source": "/trip-calculator/hero-truck.png",
+      "destination": "/hero-truck.png"
+    },
+    {
+      "source": "/trip-calculator/hero-warehouse.png",
+      "destination": "/hero-warehouse.png"
+    },
+    {
+      "source": "/trip-calculator/hero-logistics.png",
+      "destination": "/hero-logistics.png"
+    },
+    {
+      "source": "/trip-calculator/(.*\\.(js|css|json|map|ico))",
+      "destination": "/$1"
+    },
+    {
+      "source": "/trip-calculator/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

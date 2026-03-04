@@ -1,40 +1,24 @@
 {
-    "rewrites": [
+    "routes": [
         {
-            "source": "/water-delivery",
-            "destination": "https://ecoexpress-water.vercel.app/"
+            "src": "/water-delivery/assets/(.*)",
+            "dest": "/water-delivery/assets/$1"
         },
         {
-            "source": "/water-delivery/:path*",
-            "destination": "https://ecoexpress-water.vercel.app/:path*"
+            "src": "/water-delivery/(.*)",
+            "dest": "/water-delivery/index.html"
         },
         {
-            "source": "/trip-calculator/logo.png",
-            "destination": "https://trip-calculator-dusky.vercel.app/logo.png"
+            "src": "/trip-calculator/assets/(.*)",
+            "dest": "/trip-calculator/assets/$1"
         },
         {
-            "source": "/trip-calculator/hero-truck.png",
-            "destination": "https://trip-calculator-dusky.vercel.app/hero-truck.png"
+            "src": "/trip-calculator/(.*)",
+            "dest": "/trip-calculator/index.html"
         },
         {
-            "source": "/trip-calculator/hero-warehouse.png",
-            "destination": "https://trip-calculator-dusky.vercel.app/hero-warehouse.png"
-        },
-        {
-            "source": "/trip-calculator/hero-logistics.png",
-            "destination": "https://trip-calculator-dusky.vercel.app/hero-logistics.png"
-        },
-        {
-            "source": "/trip-calculator",
-            "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator"
-        },
-        {
-            "source": "/trip-calculator/",
-            "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator"
-        },
-        {
-            "source": "/trip-calculator/:path*",
-            "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator/:path*"
+            "src": "/(.*)",
+            "dest": "/$1"
         }
     ]
 }
