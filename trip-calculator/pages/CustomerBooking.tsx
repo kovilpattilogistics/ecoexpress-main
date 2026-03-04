@@ -1,36 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Trip, TripStatus } from '../types';
 import { saveTrip } from '../services/storageService';
 import { MapPin, Calendar, Package, Phone, User as UserIcon, CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { LocationPicker } from '../components/LocationPicker';
 import { useNavigate } from 'react-router-dom';
 
-export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info' | 'success' | 'error') => void }> = ({ onNotify }) => {
+export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info'|'success'|'error') => void }> = ({ onNotify }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-
-  useEffect(() => {
-    const handler = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const handleInstallClick = () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult: any) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the install prompt');
-        }
-        setDeferredPrompt(null);
-      });
-    }
-  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -56,7 +34,7 @@ export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info' | 
     }
 
     setIsLoading(true);
-
+    
     // Simulate network delay
     await new Promise(r => setTimeout(r, 1000));
 
@@ -66,7 +44,7 @@ export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info' | 
         customerName: formData.name,
         customerPhone: formData.phone,
         // Critical: driverId is empty for customer requests until Admin assigns one
-        driverId: '',
+        driverId: '', 
         pickupLocation: formData.pickup,
         pickupLat: formData.pickupLat,
         pickupLng: formData.pickupLng,
@@ -110,7 +88,7 @@ export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info' | 
             <p><strong>Drop:</strong> {formData.drop}</p>
             <p><strong>Time:</strong> {new Date(formData.scheduledTime).toLocaleString()}</p>
           </div>
-          <button
+          <button 
             onClick={() => window.location.reload()}
             className="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg active:scale-95 transition-transform"
           >
@@ -126,21 +104,13 @@ export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info' | 
       {/* Header */}
       <header className="bg-white border-b border-green-100 sticky top-0 z-30">
         <div className="max-w-md mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
-            <span className="font-bold text-lg text-gray-800">Eco<span className="text-primary">Express</span></span>
-          </div>
-          <button onClick={() => navigate('/login')} className="text-sm font-bold text-primary hover:underline">
-            Login
-          </button>
-          {deferredPrompt && (
-            <button
-              onClick={handleInstallClick}
-              className="ml-4 bg-primary text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-md hover:bg-primaryDark transition"
-            >
-              Install App
-            </button>
-          )}
+           <div className="flex items-center gap-2">
+              <img src="/generated-image (4).png" alt="Logo" className="w-8 h-8 object-contain"/>
+              <span className="font-bold text-lg text-gray-800">Eco<span className="text-primary">Express</span></span>
+           </div>
+           <button onClick={() => navigate('/login')} className="text-sm font-bold text-primary hover:underline">
+             Login
+           </button>
         </div>
       </header>
 
@@ -151,27 +121,27 @@ export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info' | 
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-
+          
           {/* Personal Info */}
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center">
-              <UserIcon className="w-4 h-4 mr-2" /> Contact Details
+              <UserIcon className="w-4 h-4 mr-2"/> Contact Details
             </h3>
             <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Your Name (Required)"
+              <input 
+                type="text" 
+                placeholder="Your Name (Required)" 
                 className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
                 value={formData.name}
-                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                onChange={e => setFormData({...formData, name: e.target.value})}
                 required
               />
-              <input
-                type="tel"
-                placeholder="Mobile Number (Required)"
+              <input 
+                type="tel" 
+                placeholder="Mobile Number (Required)" 
                 className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
                 value={formData.phone}
-                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                onChange={e => setFormData({...formData, phone: e.target.value})}
                 required
               />
             </div>
@@ -180,21 +150,21 @@ export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info' | 
           {/* Cargo Info */}
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center">
-              <Package className="w-4 h-4 mr-2" /> Cargo Details
+              <Package className="w-4 h-4 mr-2"/> Cargo Details
             </h3>
             <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Goods Type (e.g. Furniture, Electronics)"
+              <input 
+                type="text" 
+                placeholder="Goods Type (e.g. Furniture, Electronics)" 
                 className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
                 value={formData.goodsType}
-                onChange={e => setFormData({ ...formData, goodsType: e.target.value })}
+                onChange={e => setFormData({...formData, goodsType: e.target.value})}
                 required
               />
-
+              
               <div className="flex items-center justify-between p-3.5 bg-gray-50 rounded-xl border border-gray-200">
                 <div className="flex items-center gap-3">
-                  <div className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer ${formData.isMultiDrop ? 'bg-primary border-primary' : 'bg-white border-gray-300'}`} onClick={() => setFormData(p => ({ ...p, isMultiDrop: !p.isMultiDrop }))}>
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer ${formData.isMultiDrop ? 'bg-primary border-primary' : 'bg-white border-gray-300'}`} onClick={() => setFormData(p => ({...p, isMultiDrop: !p.isMultiDrop}))}>
                     {formData.isMultiDrop && <CheckCircle className="w-3.5 h-3.5 text-white" />}
                   </div>
                   <span className="text-sm font-medium text-gray-700">Multiple Drop Locations?</span>
@@ -204,13 +174,13 @@ export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info' | 
               {formData.isMultiDrop && (
                 <div className="animate-fade-in pl-4 border-l-2 border-primary">
                   <label className="text-xs font-bold text-gray-500 mb-1 block">How many drops?</label>
-                  <input
-                    type="number"
+                  <input 
+                    type="number" 
                     min="2"
                     max="10"
                     className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
                     value={formData.dropCount}
-                    onChange={e => setFormData({ ...formData, dropCount: parseInt(e.target.value) })}
+                    onChange={e => setFormData({...formData, dropCount: parseInt(e.target.value)})}
                   />
                 </div>
               )}
@@ -219,21 +189,21 @@ export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info' | 
 
           {/* Locations */}
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center">
-              <MapPin className="w-4 h-4 mr-2" /> Route
+             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center">
+              <MapPin className="w-4 h-4 mr-2"/> Route
             </h3>
             <div className="space-y-4">
-              <LocationPicker
+              <LocationPicker 
                 label="Pickup Location"
                 value={formData.pickup}
-                onChange={(val) => setFormData(p => ({ ...p, pickup: val.address, pickupLat: val.lat, pickupLng: val.lng }))}
+                onChange={(val) => setFormData(p => ({...p, pickup: val.address, pickupLat: val.lat, pickupLng: val.lng}))}
                 required
                 placeholder="Search pickup address"
               />
-              <LocationPicker
+              <LocationPicker 
                 label="Drop Location"
                 value={formData.drop}
-                onChange={(val) => setFormData(p => ({ ...p, drop: val.address, dropLat: val.lat, dropLng: val.lng }))}
+                onChange={(val) => setFormData(p => ({...p, drop: val.address, dropLat: val.lat, dropLng: val.lng}))}
                 required
                 placeholder="Search drop address"
               />
@@ -242,24 +212,24 @@ export const CustomerBooking: React.FC<{ onNotify: (msg: string, type: 'info' | 
 
           {/* Time */}
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center">
-              <Calendar className="w-4 h-4 mr-2" /> Schedule
+             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center">
+              <Calendar className="w-4 h-4 mr-2"/> Schedule
             </h3>
-            <input
-              type="datetime-local"
+            <input 
+              type="datetime-local" 
               className="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none font-medium"
               value={formData.scheduledTime}
-              onChange={e => setFormData({ ...formData, scheduledTime: e.target.value })}
+              onChange={e => setFormData({...formData, scheduledTime: e.target.value})}
               required
             />
           </div>
 
-          <button
-            type="submit"
+          <button 
+            type="submit" 
             disabled={isLoading}
             className="w-full py-4 bg-primary text-white font-bold text-lg rounded-xl shadow-lg shadow-green-200 flex items-center justify-center active:scale-95 transition-transform"
           >
-            {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <span className="flex items-center">Request Trip <ArrowRight className="ml-2 w-5 h-5" /></span>}
+            {isLoading ? <Loader2 className="w-6 h-6 animate-spin"/> : <span className="flex items-center">Request Trip <ArrowRight className="ml-2 w-5 h-5"/></span>}
           </button>
         </form>
       </main>

@@ -1,7 +1,6 @@
 export enum UserRole {
   ADMIN = 'ADMIN',
   DRIVER = 'DRIVER',
-  CUSTOMER = 'CUSTOMER',
 }
 
 export enum TripStatus {
@@ -44,7 +43,7 @@ export interface Trip {
   customerName: string; // Denormalized for display
   customerPhone?: string; // Specific for public bookings
   driverId: string; // Empty if unassigned (Customer Request)
-
+  
   pickupLocation: string;
   pickupLat?: number;
   pickupLng?: number;
@@ -52,7 +51,7 @@ export interface Trip {
   dropLocation: string;
   dropLat?: number;
   dropLng?: number;
-
+  
   // New Booking Fields
   goodsType?: string;
   isMultiDrop?: boolean;
@@ -64,12 +63,12 @@ export interface Trip {
   status: TripStatus;
   notes?: string;
   timeline: TripTimelineEvent[];
-
+  
   // Payment Details
   paymentMethod?: 'UPI' | 'CASH';
   paymentAmount?: number;
   paymentProofUrl?: string; // Data URL for image
-
+  
   // Meta
   isDriverRequested: boolean;
   createdAt: string;

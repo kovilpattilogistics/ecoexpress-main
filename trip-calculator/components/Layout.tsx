@@ -28,20 +28,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, notifications, c
 
   // Exclude Layout (Header/Footer) for Auth Page AND Public Booking Page
   // Using startsWith to handle /book/ (trailing slash) which can occur on some deployments
-  const isStandalonePage =
-    location.pathname === '/login' ||
-    location.pathname.startsWith('/book') ||
-    location.pathname === '/public' ||
-    location.pathname === '/signup' ||
-    location.pathname === '/admin-login' ||
-    location.pathname === '/driver-login' ||
-    location.pathname === '/customer-login';
-
-  // Helper for asset paths
-  const getAssetPath = (path: string) => {
-    const base = window.location.pathname.startsWith('/trip-calculator') ? '/trip-calculator' : '';
-    return `${base}${path}`;
-  };
+  const isStandalonePage = location.pathname === '/login' || location.pathname.startsWith('/book');
 
   if (isStandalonePage) return <>{children}</>;
 
@@ -52,7 +39,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, notifications, c
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
           {/* EcoExpress Logo Composition */}
           <div className="flex items-center group cursor-pointer" onClick={() => navigate('/')}>
-            <img src={getAssetPath('/logo.png')} alt="EcoExpress" className="h-10 w-auto mr-2 object-contain" />
+            <img src="/generated-image (4).png" alt="EcoExpress" className="h-10 w-auto mr-2 object-contain" />
             <div className="flex flex-col leading-none">
               <span className="font-bold text-lg tracking-tight text-secondary group-hover:text-primary transition-colors">
                 Eco<span className="text-primary">Express</span>
@@ -60,7 +47,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, notifications, c
               <span className="text-[10px] text-gray-400 font-medium tracking-wider uppercase">Logistics</span>
             </div>
           </div>
-
+          
           <div className="flex items-center space-x-4">
             {/* Connection Status Badge */}
             <div className={`hidden xs:flex items-center px-2 py-1 rounded-full text-[10px] font-bold border ${isOnline ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-100 border-gray-200 text-gray-500'}`} title={isOnline ? "Connected to Firebase Cloud" : "Running in Offline Local Mode"}>
@@ -74,7 +61,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, notifications, c
                   <span className="text-sm font-bold text-gray-700 leading-none">{user.name}</span>
                   <span className="text-[10px] text-primary font-bold uppercase tracking-wide">{user.role}</span>
                 </div>
-                <button
+                <button 
                   onClick={onLogout}
                   className="p-2.5 bg-gray-100 hover:bg-red-50 hover:text-red-500 rounded-full transition-all active:scale-95"
                   title="Logout"
@@ -90,12 +77,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, notifications, c
       {/* Notifications Toast */}
       <div className="fixed top-20 left-4 right-4 z-50 pointer-events-none flex flex-col items-center space-y-2">
         {notifications.map((n) => (
-          <div
+          <div 
             key={n.id}
-            className={`pointer-events-auto w-full max-w-sm shadow-soft rounded-xl p-4 flex items-start animate-fade-in-down transform transition-all ${n.type === 'error' ? 'bg-white text-red-600 border-l-4 border-red-500' :
+            className={`pointer-events-auto w-full max-w-sm shadow-soft rounded-xl p-4 flex items-start animate-fade-in-down transform transition-all ${
+              n.type === 'error' ? 'bg-white text-red-600 border-l-4 border-red-500' :
               n.type === 'success' ? 'bg-white text-primary border-l-4 border-primary' :
-                'bg-white text-gray-700 border-l-4 border-blue-400'
-              }`}
+              'bg-white text-gray-700 border-l-4 border-blue-400'
+            }`}
           >
             <Bell className={`h-5 w-5 mr-3 flex-shrink-0 ${n.type === 'success' ? 'fill-primary text-primary' : ''}`} />
             <p className="text-sm font-semibold">{n.message}</p>
@@ -111,7 +99,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, user, notifications, c
       {/* Footer */}
       <footer className="bg-white border-t border-green-50 py-6 text-center text-xs text-gray-400">
         <div className="flex justify-center items-center gap-1 mb-1">
-          <img src={getAssetPath('/logo.png')} alt="Logo" className="w-4 h-4 opacity-50" />
+          <img src="/generated-image (4).png" alt="Logo" className="w-4 h-4 opacity-50"/>
           <span>Sustainable Delivery Solutions</span>
         </div>
         &copy; {new Date().getFullYear()} EcoExpress Logistics

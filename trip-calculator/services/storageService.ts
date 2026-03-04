@@ -1,80 +1,232 @@
-import { User, UserRole, Trip, Customer, TripStatus } from "../types";
-import { supabase } from "./supabaseClient";
+import { User, UserRole, Trip, Customer } from "../types";
+import { db } from "./firebaseConfig";
+import { 
+  collection, 
+  doc, 
+  setDoc, 
+  getDocs, 
+  onSnapshot, 
+  query, 
+  where, 
+  deleteDoc,
+  getDoc
+} from "firebase/firestore";
 
 const KEYS = {
+  USERS: 'fleet_users',
+  TRIPS: 'fleet_trips',
+  CUSTOMERS: 'fleet_customers',
   SESSION: 'fleet_session'
 };
 
-// --- AUTHENTICATION ---
+// Hardcoded users for seeding
+const REAL_USERS: User[] = [
+  { 
+    id: 'admin_01', 
+    name: 'Admin User', 
+    email: 'sirangvjomon@gmail.com', 
+    phone: '9998887777', 
+    role: UserRole.ADMIN, 
+    password: 'Zolo@city$b301' 
+  },
+  { 
+    id: 'driver_01', 
+    name: 'Arun Driver', 
+    email: 'arun@fleet.com', 
+    phone: '9876543210', 
+    role: UserRole.DRIVER, 
+    password: 'arun@123' 
+  },
+];
 
-// --- AUTHENTICATION ---
+// --- INITIALIZATION ---
 
-export const loginUser = async (email: string, password: string): Promise<User | null> => {
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error || !data.user) {
-      console.error("Supabase Login Error:", error);
-      return null;
+export const initStorage = async () => {
+  const firestore = db;
+  
+  if (firestore) {
+    try {
+      // Cast to any to prevent TS2769 error with "Firestore | null"
+      const fs = firestore as any;
+      // Check if admin exists, if not, seed data
+      const adminRef = doc(fs, KEYS.USERS, 'admin_01');
+      const adminSnap = await getDoc(adminRef);
+      
+      if (!adminSnap.exists()) {
+        console.log("Seeding Database...");
+        const batchPromises = REAL_USERS.map(user => 
+          setDoc(doc(fs, KEYS.USERS, user.id), user)
+        );
+        await Promise.all(batchPromises);
+        console.log("Database Seeded.");
+      }
+    } catch (e) {
+      console.error("Firebase Init Error:", e);
     }
-
-    // Fetch Profile
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', data.user.id)
-      .single();
-
-    if (profile) {
-      const user = { ...profile, email: data.user.email } as User;
-      localStorage.setItem(KEYS.SESSION, JSON.stringify(user));
-      return user;
+  } else {
+    // Fallback LocalStorage Init
+    if (!localStorage.getItem(KEYS.USERS)) {
+      localStorage.setItem(KEYS.USERS, JSON.stringify(REAL_USERS));
     }
-
-    return null;
-  } catch (e) {
-    console.error("Login Error:", e);
-    return null;
+    if (!localStorage.getItem(KEYS.CUSTOMERS)) localStorage.setItem(KEYS.CUSTOMERS, JSON.stringify([]));
+    if (!localStorage.getItem(KEYS.TRIPS)) localStorage.setItem(KEYS.TRIPS, JSON.stringify([]));
   }
 };
 
-export const registerUser = async (email: string, password: string, name: string, phone: string, role: UserRole): Promise<User | null> => {
-  try {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name, phone, role } // Metadata for trigger to potentially use, or manual insert
-      }
+// --- DATA ACCESS (HYBRID: FIREBASE OR LOCAL STORAGE) ---
+
+// Helpers for LocalStorage (Legacy/Fallback)
+const getLocal = <T>(key: string): T[] => JSON.parse(localStorage.getItem(key) || '[]');
+const setLocal = (key: string, data: any[]) => localStorage.setItem(key, JSON.stringify(data));
+
+// 1. TRIPS
+
+export const subscribeToTrips = (callback: (trips: Trip[]) => void) => {
+  const firestore = db;
+  if (firestore) {
+    const fs = firestore as any;
+    // Real-time listener
+    const q = query(collection(fs, KEYS.TRIPS));
+    return onSnapshot(q, (snapshot) => {
+      const trips = snapshot.docs.map(doc => doc.data() as Trip);
+      callback(trips);
+    }, (error) => {
+      console.error("Trip Subscription Error:", error);
     });
-
-    if (error || !data.user) {
-      console.error("Registration Error:", error);
-      throw error;
-    }
-
-    // Manually insert into profiles if no trigger exists yet (safety net)
-    const { error: profileError } = await supabase.from('profiles').insert({
-      id: data.user.id,
-      name,
-      email,
-      phone,
-      role
-    });
-
-    if (profileError) {
-      console.error("Profile Creation Error:", profileError);
-      // Dont fail auth if profile fails, handle gracefully or retry
-    }
-
-    return { id: data.user.id, name, email, phone, role };
-  } catch (e) {
-    console.error("Register Error:", e);
-    return null;
+  } else {
+    // Local storage "simulation"
+    const data = getLocal<Trip>(KEYS.TRIPS);
+    callback(data);
+    // Return no-op unsubscribe
+    return () => {};
   }
+};
+
+export const saveTrip = async (trip: Trip) => {
+  try {
+    const firestore = db;
+    if (firestore) {
+      const fs = firestore as any;
+      await setDoc(doc(fs, KEYS.TRIPS, trip.id), trip);
+    } else {
+      const trips = getLocal<Trip>(KEYS.TRIPS);
+      const index = trips.findIndex(t => t.id === trip.id);
+      if (index >= 0) trips[index] = trip;
+      else trips.push(trip);
+      setLocal(KEYS.TRIPS, trips);
+    }
+  } catch (error) {
+    console.error("Error saving trip:", error);
+    throw error;
+  }
+};
+
+// 2. CUSTOMERS
+
+export const subscribeToCustomers = (callback: (customers: Customer[]) => void) => {
+  const firestore = db;
+  if (firestore) {
+    const fs = firestore as any;
+    const q = query(collection(fs, KEYS.CUSTOMERS));
+    return onSnapshot(q, (snapshot) => {
+      const custs = snapshot.docs.map(doc => doc.data() as Customer);
+      callback(custs);
+    }, (error) => console.error("Customer Sub Error:", error));
+  } else {
+    callback(getLocal<Customer>(KEYS.CUSTOMERS));
+    return () => {};
+  }
+};
+
+export const saveCustomer = async (customer: Customer) => {
+  const firestore = db;
+  if (firestore) {
+    const fs = firestore as any;
+    await setDoc(doc(fs, KEYS.CUSTOMERS, customer.id), customer);
+  } else {
+    const customers = getLocal<Customer>(KEYS.CUSTOMERS);
+    const index = customers.findIndex(c => c.id === customer.id);
+    if (index >= 0) customers[index] = customer;
+    else customers.push(customer);
+    setLocal(KEYS.CUSTOMERS, customers);
+  }
+};
+
+export const deleteCustomer = async (customerId: string) => {
+  const firestore = db;
+  if (firestore) {
+    const fs = firestore as any;
+    await deleteDoc(doc(fs, KEYS.CUSTOMERS, customerId));
+  } else {
+    const customers = getLocal<Customer>(KEYS.CUSTOMERS);
+    const filtered = customers.filter(c => c.id !== customerId);
+    setLocal(KEYS.CUSTOMERS, filtered);
+  }
+};
+
+// 3. USERS / AUTH
+
+export const getUsers = async (): Promise<User[]> => {
+  const firestore = db;
+  if (firestore) {
+    const fs = firestore as any;
+    try {
+      const snapshot = await getDocs(collection(fs, KEYS.USERS));
+      return snapshot.docs.map(d => d.data() as User);
+    } catch (e) {
+      console.error("Error fetching users:", e);
+      return [];
+    }
+  }
+  return getLocal<User>(KEYS.USERS);
+};
+
+export const loginUser = async (identifier: string, password: string): Promise<User | null> => {
+  const firestore = db;
+  // 1. Try Firebase Query (Optimized)
+  if (firestore) {
+    const fs = firestore as any;
+    try {
+      // Query by email first
+      const usersRef = collection(fs, KEYS.USERS);
+      const q = query(usersRef, where("email", "==", identifier));
+      const snapshot = await getDocs(q);
+      
+      let user: User | undefined;
+      
+      // Check results
+      if (!snapshot.empty) {
+        user = snapshot.docs[0].data() as User;
+      } else {
+        // Fallback: Check by Phone (since user might enter phone)
+        const qPhone = query(usersRef, where("phone", "==", identifier));
+        const phoneSnap = await getDocs(qPhone);
+        if (!phoneSnap.empty) {
+          user = phoneSnap.docs[0].data() as User;
+        }
+      }
+
+      // Verify Password (In production, use Firebase Auth + Hash, this is for demo)
+      if (user && user.password === password) {
+        localStorage.setItem(KEYS.SESSION, JSON.stringify(user));
+        return user;
+      }
+      return null;
+    } catch (error) {
+      console.error("Login Error:", error);
+      // Fallback to local check if network fails
+    }
+  }
+
+  // 2. Local Storage Fallback
+  const users = getLocal<User>(KEYS.USERS);
+  const user = users.find(u => (u.email === identifier || u.phone === identifier) && u.password === password);
+  
+  if (user) {
+    localStorage.setItem(KEYS.SESSION, JSON.stringify(user));
+    return user;
+  }
+  return null;
 };
 
 export const getSession = (): User | null => {
@@ -82,129 +234,6 @@ export const getSession = (): User | null => {
   return s ? JSON.parse(s) : null;
 };
 
-export const logoutUser = async () => {
-  await supabase.auth.signOut();
+export const logoutUser = () => {
   localStorage.removeItem(KEYS.SESSION);
 };
-
-// --- INITIALIZATION ---
-
-export const initStorage = async () => {
-  // Check auth state
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    // Refresh local profile
-    const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-    if (data) {
-      localStorage.setItem(KEYS.SESSION, JSON.stringify({ ...data, email: session.user.email }));
-    }
-  }
-};
-
-// --- DATA ACCESS ---
-
-// 1. TRIPS
-
-export const subscribeToTrips = (callback: (trips: Trip[]) => void) => {
-  // Initial Fetch
-  supabase.from('trips').select('*').order('created_at', { ascending: false })
-    .then(({ data, error }) => {
-      if (!error && data) callback(data as unknown as Trip[]);
-    });
-
-  // Realtime Subscription
-  const channel = supabase
-    .channel('public:trips')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'trips' }, async (payload: any) => {
-      // Re-fetch all on change (simplest for now, optimize later)
-      const { data } = await supabase.from('trips').select('*').order('created_at', { ascending: false });
-      if (data) callback(data as unknown as Trip[]);
-    })
-    .subscribe();
-
-  return () => {
-    supabase.removeChannel(channel);
-  };
-};
-
-export const saveTrip = async (trip: Trip) => {
-  // Convert FE Trip object to DB columns if necessary
-  // The schema matches fairly well, but we need to ensure types align.
-  // Trip ID is UUID, ensure it is.
-
-  const { error } = await supabase.from('trips').upsert(trip as any);
-  if (error) throw error;
-};
-
-// 2. CUSTOMERS (read from trips or profiles?)
-// The prototype had a separate 'customers' collection.
-// Let's implement a simple version that extracts unique customers from trips for now,
-// or just return an empty list if not strictly used. 
-// Looking at the dashboard, it lists customers. 
-// Let's assume we just won't support the "Customers" tab fully yet or fetch from profiles with role=CUSTOMER.
-
-export const subscribeToCustomers = (callback: (customers: Customer[]) => void) => {
-  // Fetch profiles with role CUSTOMER
-  supabase.from('profiles').select('*').eq('role', 'CUSTOMER')
-    .then(({ data }) => {
-      if (data) {
-        const customers = data.map((p: any) => ({
-          id: p.id,
-          name: p.name || 'Unknown',
-          address: 'N/A', // Schema doesn't have address yet
-          phone: p.phone,
-          email: p.email
-        })) as Customer[];
-        callback(customers);
-      } else {
-        callback([]);
-      }
-    });
-  return () => { };
-};
-
-export const saveCustomer = async (customer: Customer) => {
-  // Save to profiles
-  // This assumes we can just insert them.
-  await supabase.from('profiles').upsert({
-    id: customer.id,
-    name: customer.name,
-    phone: customer.phone,
-    role: 'CUSTOMER'
-    // Address missing in profile schema, ignore for now
-  });
-};
-
-export const deleteCustomer = async (customerId: string) => {
-  await supabase.from('profiles').delete().eq('id', customerId);
-};
-
-export const getUsers = async (): Promise<User[]> => {
-  const { data } = await supabase.from('profiles').select('*');
-  return (data || []) as unknown as User[];
-};
-
-// 3. VEHICLE LOGS
-export const subscribeToVehicleLogs = (callback: (logs: any[]) => void) => {
-  // Initial Fetch
-  supabase.from('vehicle_logs').select('*').order('timestamp', { ascending: false }).limit(50)
-    .then(({ data, error }) => {
-      if (!error && data) callback(data);
-    });
-
-  // Realtime Subscription
-  const channel = supabase
-    .channel('public:vehicle_logs')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'vehicle_logs' }, async (payload: any) => {
-      const { data } = await supabase.from('vehicle_logs').select('*').order('timestamp', { ascending: false }).limit(100);
-      if (data) callback(data);
-    })
-    .subscribe();
-
-  return () => {
-    supabase.removeChannel(channel);
-  };
-};
-
-export { supabase };
-
