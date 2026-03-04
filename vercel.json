@@ -26,7 +26,11 @@
         },
         {
             "source": "/trip-calculator",
-            "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator/"
+            "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator"
+        },
+        {
+            "source": "/trip-calculator/",
+            "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator"
         },
         {
             "source": "/trip-calculator/:path*",
