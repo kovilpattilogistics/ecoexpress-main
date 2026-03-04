@@ -1,13 +1,12 @@
 {
-    "trailingSlash": false,
     "rewrites": [
         {
             "source": "/water-delivery",
             "destination": "https://ecoexpress-water.vercel.app/"
         },
         {
-            "source": "/water-delivery/(.*)",
-            "destination": "https://ecoexpress-water.vercel.app/$1"
+            "source": "/water-delivery/:path*",
+            "destination": "https://ecoexpress-water.vercel.app/:path*"
         },
         {
             "source": "/trip-calculator/logo.png",
@@ -27,11 +26,11 @@
         },
         {
             "source": "/trip-calculator",
-            "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator"
+            "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator/"
         },
         {
-            "source": "/trip-calculator/(.*)",
-            "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator/$1"
+            "source": "/trip-calculator/:path*",
+            "destination": "https://trip-calculator-dusky.vercel.app/trip-calculator/:path*"
         }
     ]
 }
