@@ -5,14 +5,14 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/trip-calculator/',
+  base: '/ecoexpress-trip/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
   build: {
-    outDir: '../dist/trip-calculator',
+    outDir: '../dist/ecoexpress-trip',
     emptyOutDir: true,
   },
   define: {

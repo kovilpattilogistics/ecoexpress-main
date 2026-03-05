@@ -3,20 +3,20 @@
     "outputDirectory": "dist",
     "routes": [
         {
-            "src": "/water-delivery/assets/(.*)",
-            "dest": "/water-delivery/assets/$1"
+            "src": "/ecoexpress-water/assets/(.*)",
+            "dest": "/ecoexpress-water/assets/$1"
         },
         {
-            "src": "/water-delivery/(.*)",
-            "dest": "/water-delivery/index.html"
+            "src": "/ecoexpress-water/(.*)",
+            "dest": "/ecoexpress-water/index.html"
         },
         {
-            "src": "/trip-calculator/assets/(.*)",
-            "dest": "/trip-calculator/assets/$1"
+            "src": "/ecoexpress-trip/assets/(.*)",
+            "dest": "/ecoexpress-trip/assets/$1"
         },
         {
-            "src": "/trip-calculator/(.*)",
-            "dest": "/trip-calculator/index.html"
+            "src": "/ecoexpress-trip/(.*)",
+            "dest": "/ecoexpress-trip/index.html"
         },
         {
             "src": "/(.*)",
