@@ -4,7 +4,7 @@ import React from 'react';
 import { ArrowRight, Truck, Globe, CheckCircle2, ShieldCheck, Clock } from 'lucide-react';
 import { useWizard } from '@/components/wizard/WizardManager';
 import { TRANSLATIONS } from '@/lib/translations';
-import logoSrc from '/logo.png';
+import logoSrc from '@/assets/logo.png';
 
 export function Step0Landing() {
     const { goToNextStep, lang, toggleLang } = useWizard();
