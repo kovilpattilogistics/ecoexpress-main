@@ -14,9 +14,9 @@ interface Props {
 }
 
 const SERVICE_META = {
-    dedicated: { emoji: '🚛', label: 'Dedicated Vehicle', labelTa: 'அர்ப்பணிப்பு வாகனம்', border: 'border-orange-400', bg: 'bg-orange-50', pill: 'bg-orange-100 text-orange-700', priceBg: 'from-orange-500 to-amber-500' },
-    scheduled: { emoji: '📅', label: 'Scheduled Route', labelTa: 'திட்டமிடப்பட்ட பாதை', border: 'border-blue-400', bg: 'bg-blue-50', pill: 'bg-blue-100 text-blue-700', priceBg: 'from-blue-500 to-cyan-500' },
-    express: { emoji: '⚡', label: 'Express (Priority)', labelTa: 'விரைவு (முன்னுரிமை)', border: 'border-purple-400', bg: 'bg-purple-50', pill: 'bg-purple-100 text-purple-700', priceBg: 'from-purple-500 to-violet-500' },
+    dedicated: { emoji: '🚛', nameKey: 'dedicatedLabel' as const, border: 'border-orange-400', bg: 'bg-orange-50', pill: 'bg-orange-100 text-orange-700', priceBg: 'from-orange-500 to-amber-500' },
+    scheduled: { emoji: '📅', nameKey: 'scheduledLabel' as const, border: 'border-blue-400', bg: 'bg-blue-50', pill: 'bg-blue-100 text-blue-700', priceBg: 'from-blue-500 to-cyan-500' },
+    express: { emoji: '⚡', nameKey: 'expressLabel' as const, border: 'border-purple-400', bg: 'bg-purple-50', pill: 'bg-purple-100 text-purple-700', priceBg: 'from-purple-500 to-violet-500' },
 };
 
 function BreakdownRow({ label, value }: { label: string; value: number }) {
@@ -53,7 +53,7 @@ export function Step4QuoteView({ quote, serviceType }: Props) {
 
     const buildWhatsApp = () => {
         const bd = selectedBreakdown;
-        const svcName = lang === 'en' ? svcMeta.label : svcMeta.labelTa;
+        const svcName = t[svcMeta.nameKey];
         const dropLine = data.deliveryType === 'single'
             ? `📍 *${t.drop}:* ${data.dropLocation}`
             : `📍 *${t.drop}:* ${data.endLocation}`;
@@ -140,7 +140,7 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
                     <div className={clsx('px-5 py-5 bg-gradient-to-r text-white', svcMeta.priceBg)}>
                         <div className="flex items-center gap-2 mb-2">
                             <span className="text-2xl">{svcMeta.emoji}</span>
-                            <span className="font-bold text-sm opacity-90">{lang === 'en' ? svcMeta.label : svcMeta.labelTa}</span>
+                            <span className="font-bold text-sm opacity-90">{t[svcMeta.nameKey]}</span>
                         </div>
                         <div className="flex items-baseline gap-1">
                             <span className="text-base opacity-80">₹</span>

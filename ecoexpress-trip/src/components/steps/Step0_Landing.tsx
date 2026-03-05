@@ -17,9 +17,9 @@ export function Step0Landing() {
     ];
 
     const services = [
-        { emoji: '🚛', title: lang === 'en' ? 'Dedicated' : 'அர்ப்பணிப்பு', desc: lang === 'en' ? 'Exclusive truck, any time' : 'தனி வாகனம், எந்நேரமும்', iconBg: 'bg-orange-100' },
-        { emoji: '📅', title: lang === 'en' ? 'Scheduled' : 'திட்டமிடப்பட்டது', desc: lang === 'en' ? 'Mon/Wed/Fri/Sat routes' : 'திங்கள்/புதன்/வெள்ளி/சனி', iconBg: 'bg-blue-100' },
-        { emoji: '⚡', title: lang === 'en' ? 'Express' : 'விரைவு', desc: lang === 'en' ? 'Same-day priority' : 'அதே நாள் டெலிவரி', iconBg: 'bg-purple-100' },
+        { emoji: '🚛', title: t.dedicatedLabel, desc: t.dedicatedDesc, iconBg: 'bg-orange-100' },
+        { emoji: '📅', title: t.scheduledLabel, desc: t.scheduledDesc, iconBg: 'bg-blue-100' },
+        { emoji: '⚡', title: t.expressLabel, desc: t.expressDesc, iconBg: 'bg-purple-100' },
     ];
 
     return (
