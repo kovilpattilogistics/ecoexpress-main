@@ -4,8 +4,7 @@ import React from 'react';
 import { ArrowRight, Truck, Globe, CheckCircle2, ShieldCheck, Clock } from 'lucide-react';
 import { useWizard } from '@/components/wizard/WizardManager';
 import { TRANSLATIONS } from '@/lib/translations';
-
-const BASE = import.meta.env.BASE_URL; // e.g. /ecoexpress-trip/
+import logoSrc from '/logo.png';
 
 export function Step0Landing() {
     const { goToNextStep, lang, toggleLang } = useWizard();
@@ -41,15 +40,13 @@ export function Step0Landing() {
                     </button>
                 </div>
 
-                {/* Logo + Title */}
+                {/* Logo + Title — logo on green background, no white card */}
                 <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center shrink-0 overflow-hidden">
-                        <img
-                            src={`${BASE}logo.png`}
-                            alt="EcoExpress"
-                            className="w-14 h-14 object-contain"
-                        />
-                    </div>
+                    <img
+                        src={logoSrc}
+                        alt="EcoExpress"
+                        className="w-16 h-16 object-contain rounded-2xl shrink-0 bg-white p-1 shadow-lg"
+                    />
                     <div>
                         <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest">EcoExpress Logistics</p>
                         <h1 className="text-2xl font-black text-white leading-tight">{t.tripHero}</h1>
