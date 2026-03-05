@@ -1,96 +1,138 @@
+'use client';
+
 import React from 'react';
-import { ArrowRight, MapPin, Sparkles, Truck, Shield, Leaf, Globe } from 'lucide-react';
+import { ArrowRight, Truck, Clock, ShieldCheck, Globe, CheckCircle2 } from 'lucide-react';
 import { useWizard } from '@/components/wizard/WizardManager';
+import { TRANSLATIONS } from '@/lib/translations';
 
 export function Step0Landing() {
     const { goToNextStep, lang, toggleLang } = useWizard();
-    const isTa = lang === 'ta';
+    const t = TRANSLATIONS[lang];
+
+    const features = [
+        { icon: CheckCircle2, label: t.tripFeature1 },
+        { icon: CheckCircle2, label: t.tripFeature2 },
+        { icon: CheckCircle2, label: t.tripFeature3 },
+    ];
+
+    const services = [
+        {
+            icon: '📅',
+            title: lang === 'en' ? 'Scheduled' : 'திட்டமிடப்பட்டது',
+            desc: lang === 'en' ? 'Mon/Wed/Fri/Sat' : 'திங்கள்/புதன்/வெள்ளி/சனி',
+            color: 'bg-blue-50 border-blue-100',
+            iconBg: 'bg-blue-100',
+        },
+        {
+            icon: '🚛',
+            title: lang === 'en' ? 'Dedicated' : 'அர்ப்பணிப்பு',
+            desc: lang === 'en' ? 'Any time, exclusive truck' : 'எந்த நேரமும், தனி வாகனம்',
+            color: 'bg-orange-50 border-orange-100',
+            iconBg: 'bg-orange-100',
+        },
+        {
+            icon: '⚡',
+            title: lang === 'en' ? 'Express' : 'விரைவு',
+            desc: lang === 'en' ? 'Same-day priority' : 'அதே நாள் டெலிவரி',
+            color: 'bg-purple-50 border-purple-100',
+            iconBg: 'bg-purple-100',
+        },
+    ];
 
     return (
-        <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white relative overflow-hidden">
-            {/* Decorative background circles */}
-            <div className="absolute top-[-60px] right-[-60px] w-48 h-48 rounded-full bg-green-100/50 blur-2xl" />
-            <div className="absolute bottom-[30%] left-[-40px] w-32 h-32 rounded-full bg-emerald-100/40 blur-xl" />
+        <div className="flex flex-col min-h-full bg-white overflow-y-auto">
+            {/* Hero Banner */}
+            <div className="relative bg-gradient-to-br from-green-700 via-green-600 to-emerald-500 px-6 pt-10 pb-16 overflow-hidden">
+                {/* Background decorations */}
+                <div className="absolute -top-10 -right-10 w-56 h-56 rounded-full bg-white/5 blur-2xl" />
+                <div className="absolute bottom-0 left-0 w-40 h-40 rounded-full bg-black/10 blur-2xl" />
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-5 relative z-10">
                 {/* Language Toggle */}
-                <div className="absolute top-4 right-4 z-50">
+                <div className="flex justify-end mb-6 relative z-10">
                     <button
                         onClick={toggleLang}
-                        className="flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-primary bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full px-3 py-1 transition shadow-sm"
+                        className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full border border-white/20 transition-all"
                     >
-                        <Globe className="w-4 h-4" />
-                        {isTa ? 'தமிழ்' : 'English'}
+                        <Globe className="w-3.5 h-3.5" />
+                        {lang === 'en' ? 'தமிழ்' : 'English'}
                     </button>
                 </div>
 
-                {/* Logo */}
-                <div className="relative w-36 h-36 mb-2">
-                    <div className="absolute inset-0 bg-green-200/30 rounded-full blur-xl animate-pulse" />
-                    <img
-                        src="/ecoexpress-trip/logo.png"
-                        alt="EcoExpress Logo"
-                        className="w-full h-full object-contain drop-shadow-lg relative z-10"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                    />
-                </div>
-
-                <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
-                    Eco<span className="text-primary">Express</span>
-                </h1>
-
-                <div className="space-y-2 max-w-xs mx-auto">
-                    <p className="text-lg font-medium text-gray-800 flex items-center justify-center gap-2">
-                        <Sparkles className="w-5 h-5 text-amber-500" />
-                        {isTa
-                            ? <><span className="text-primary font-bold">30 நொடியில்</span>&nbsp;விலை பெறுங்கள்</>
-                            : <>Get your price in <span className="text-primary font-bold">30 seconds</span></>}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                        {isTa
-                            ? 'கோவில்பட்டி மற்றும் சுற்றியுள்ள பகுதிகளுக்கு உடனடி மேற்கோள்'
-                            : 'Instant quotes for Kovilpatti & surrounding areas'}
+                {/* Logo & Title */}
+                <div className="flex flex-col items-center text-center relative z-10">
+                    <div className="relative w-24 h-24 mb-4">
+                        <div className="absolute inset-0 bg-white/20 rounded-3xl blur-lg" />
+                        <div className="relative w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center overflow-hidden">
+                            <img
+                                src="/ecoexpress-trip/logo.png"
+                                alt="EcoExpress"
+                                className="w-20 h-20 object-contain"
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                }}
+                            />
+                        </div>
+                    </div>
+                    <p className="text-white/70 text-xs font-semibold uppercase tracking-[0.2em] mb-1">EcoExpress Logistics</p>
+                    <h1 className="text-3xl font-black text-white leading-tight mb-3">
+                        {t.tripHero}
+                    </h1>
+                    <p className="text-green-100 text-sm leading-relaxed max-w-xs">
+                        {t.tripTagline}
                     </p>
                 </div>
-
-                {/* Start Button */}
-                <button
-                    onClick={goToNextStep}
-                    className="group w-full max-w-xs bg-gradient-to-r from-primary to-emerald-600 hover:from-[#1b5e20] hover:to-emerald-700 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-lg shadow-green-200/50 transform transition-all active:scale-95 flex items-center justify-center gap-2 mt-6"
-                >
-                    {isTa ? 'கணக்கீடு தொடங்கு' : 'START CALCULATION'}
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
             </div>
 
-            {/* Trust badges */}
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-t-3xl border-t border-gray-100 relative z-10">
-                <div className="grid grid-cols-2 gap-3 mb-5">
-                    {[
-                        { icon: Leaf, label: isTa ? 'இவி டெலிவரி' : 'EV Delivery', color: 'text-green-600' },
-                        { icon: Shield, label: isTa ? 'நிலையான விலை' : 'Fixed Price', color: 'text-blue-600' },
-                        { icon: Truck, label: isTa ? 'ஆவணம் உட்பட' : 'POD Included', color: 'text-orange-600' },
-                        { icon: Sparkles, label: isTa ? 'உடனே பதிவு' : 'Instant Book', color: 'text-purple-600' },
-                    ].map((badge) => (
-                        <div key={badge.label} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-gray-50/80">
-                            <badge.icon className={`w-4 h-4 ${badge.color}`} />
-                            <span className="text-sm text-gray-700 font-medium">{badge.label}</span>
+            {/* Content */}
+            <div className="px-6 -mt-6 relative z-10 flex flex-col gap-5 pb-8">
+
+                {/* Service Cards */}
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                    {services.map((svc, i) => (
+                        <div key={i} className={`flex items-center gap-4 px-4 py-3.5 ${i < services.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                            <div className={`w-10 h-10 ${svc.iconBg} rounded-xl flex items-center justify-center text-xl shrink-0`}>
+                                {svc.icon}
+                            </div>
+                            <div>
+                                <p className="font-bold text-gray-800 text-sm">{svc.title}</p>
+                                <p className="text-xs text-gray-500">{svc.desc}</p>
+                            </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
-                    <div className="flex items-start gap-3">
-                        <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                        <div>
-                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">
-                                {isTa ? 'மண்டலம்-A பகுதி' : 'Zone-A Coverage'}
-                            </h3>
-                            <p className="text-sm text-gray-800 font-medium leading-relaxed">
-                                Kovilpatti • Kalugumalai • Sankarankoil • Tiruvengadam
-                            </p>
+                {/* Feature Pills */}
+                <div className="flex flex-col gap-2">
+                    {features.map((f, i) => (
+                        <div key={i} className="flex items-center gap-2.5">
+                            <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                                <f.icon className="w-3 h-3 text-green-600" />
+                            </div>
+                            <span className="text-sm text-gray-600 font-medium">{f.label}</span>
                         </div>
+                    ))}
+                </div>
+
+                {/* CTA */}
+                <button
+                    onClick={goToNextStep}
+                    className="w-full py-5 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-green-200/60 flex items-center justify-center gap-3 active:scale-[0.97] transition-all"
+                >
+                    <Truck className="w-5 h-5" />
+                    {t.tripStart}
+                    <ArrowRight className="w-5 h-5" />
+                </button>
+
+                {/* Trust note */}
+                <div className="flex items-center justify-center gap-3 text-xs text-gray-400">
+                    <div className="flex items-center gap-1.5">
+                        <ShieldCheck className="w-4 h-4 text-green-500" />
+                        <span>{lang === 'en' ? 'Trusted by local businesses' : 'உள்ளூர் வணிகர்கள் நம்பும் சேவை'}</span>
+                    </div>
+                    <span>•</span>
+                    <div className="flex items-center gap-1.5">
+                        <Clock className="w-4 h-4 text-green-500" />
+                        <span>{lang === 'en' ? 'Quotes in seconds' : 'விலை உடனே'}</span>
                     </div>
                 </div>
             </div>
