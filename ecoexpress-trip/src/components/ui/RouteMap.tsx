@@ -1,143 +1,154 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Polyline, useMap, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { useEffect, useState } from 'react';
+import 'leaflet/dist/leaflet.css';
 
 // Custom icons
-const pickupIcon = new L.DivIcon({
+const createIcon = (color: string, svgPath: string, size: number) => new L.DivIcon({
     className: 'custom-marker',
-    html: `<div style="width:32px;height:32px;border-radius:50%;background:#16a34a;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-        <svg width="14" height="14" viewBox="0 0 24 24"  ="none" stroke="white" stroke-width="3"><circle cx="12" cy="12" r="4"/></svg>
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
+        <svg width="${size === 32 ? 14 : 10}" height="${size === 32 ? 14 : 10}" viewBox="0 0 24 24" fill="${size === 32 ? 'none' : 'white'}" stroke="${size === 32 ? 'white' : 'none'}" stroke-width="3">${svgPath}</svg>
     </div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2]
 });
 
-const dropIcon = new L.DivIcon({
-    className: 'custom-marker',
-    html: `<div style="width:32px;height:32px;border-radius:50%;background:#dc2626;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-        <svg width="14" height="14" viewBox="0 0 24 24"  ="none" stroke="white" stroke-width="3"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/></svg>
-    </div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-});
-
-const stopIcon = new L.DivIcon({
-    className: 'custom-marker',
-    html: `<div style="width:26px;height:26px;border-radius:50%;background:#f97316;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
-        <svg width="10" height="10" viewBox="0 0 24 24"  ="white"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-    </div>`,
-    iconSize: [26, 26],
-    iconAnchor: [13, 13],
-});
-
-// Auto-fit bounds to show all markers and route
-function FitBounds({ bounds }: { bounds: L.LatLngBoundsExpression }) {
-    const map = useMap();
-    useEffect(() => {
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
-    }, [bounds, map]);
-    return null;
-}
+const pickupIcon = createIcon('#16a34a', '<circle cx="12" cy="12" r="4"/>', 32);
+const dropIcon = createIcon('#dc2626', '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/>', 32);
+const stopIcon = createIcon('#f97316', '<rect x="6" y="6" width="12" height="12" rx="2"/>', 26);
 
 interface RouteMapProps {
     waypoints: { lat: number; lng: number; label: string; type: 'pickup' | 'drop' | 'stop' }[];
 }
 
 export default function RouteMap({ waypoints }: RouteMapProps) {
+    const mapRef = useRef<HTMLDivElement>(null);
+    const mapInstance = useRef<L.Map | null>(null);
+    const layerGroup = useRef<L.FeatureGroup | null>(null);
+
     const [routeCoords, setRouteCoords] = useState<[number, number][]>([]);
 
+    // Fetch route from OSRM
     useEffect(() => {
         if (waypoints.length < 2) return;
+
+        let cancelled = false;
 
         const fetchRoute = async () => {
             try {
                 // Build OSRM coordinates string
-                const coords = waypoints
-                    .map(wp => `${wp.lng},${wp.lat}`)
-                    .join(';');
-
+                const coords = waypoints.map(wp => `${wp.lng},${wp.lat}`).join(';');
                 const url = `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`;
                 const res = await fetch(url);
                 const data = await res.json();
 
+                if (cancelled) return;
+
                 if (data.routes?.[0]?.geometry?.coordinates) {
-                    // OSRM returns [lng, lat] — convert to [lat, lng] for Leaflet
-                    const coords: [number, number][] = data.routes[0].geometry.coordinates.map(
-                        (c: [number, number]) => [c[1], c[0]]
+                    // OSRM returns [lng, lat] => needs [lat, lng]
+                    const c: [number, number][] = data.routes[0].geometry.coordinates.map(
+                        (coord: [number, number]) => [coord[1], coord[0]]
                     );
-                    setRouteCoords(coords);
+                    setRouteCoords(c);
+                } else {
+                    setRouteCoords(waypoints.map(wp => [wp.lat, wp.lng]));
                 }
             } catch (err) {
                 console.warn('Route fetch failed:', err);
-                // Fallback: straight lines between waypoints
-                setRouteCoords(waypoints.map(wp => [wp.lat, wp.lng]));
+                if (!cancelled) {
+                    setRouteCoords(waypoints.map(wp => [wp.lat, wp.lng]));
+                }
             }
         };
 
         fetchRoute();
+
+        return () => { cancelled = true; };
     }, [waypoints]);
+
+    // Initialize Map and Update Layers
+    useEffect(() => {
+        if (!mapRef.current) return;
+
+        if (!mapInstance.current) {
+            mapInstance.current = L.map(mapRef.current, {
+                zoomControl: true,
+                scrollWheelZoom: true,
+                doubleClickZoom: true,
+                touchZoom: true,
+                attributionControl: false
+            }).setView([9.17, 77.88], 12);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance.current);
+
+            layerGroup.current = L.featureGroup().addTo(mapInstance.current);
+
+            setTimeout(() => {
+                mapInstance.current?.invalidateSize();
+            }, 100);
+        }
+
+        const map = mapInstance.current;
+        const group = layerGroup.current;
+        if (!map || !group) return;
+
+        group.clearLayers();
+
+        if (waypoints.length < 2) return;
+
+        const allLatLngs: L.LatLng[] = [];
+
+        // Draw Route Line
+        if (routeCoords.length > 0) {
+            const polyline = L.polyline(routeCoords, {
+                color: '#dc2626',
+                weight: 4,
+                opacity: 0.85
+            }).addTo(group);
+
+            routeCoords.forEach(c => allLatLngs.push(L.latLng(c[0], c[1])));
+        }
+
+        // Draw Markers
+        waypoints.forEach(wp => {
+            const ll = L.latLng(wp.lat, wp.lng);
+            allLatLngs.push(ll);
+
+            let icon = stopIcon;
+            if (wp.type === 'pickup') icon = pickupIcon;
+            if (wp.type === 'drop') icon = dropIcon;
+
+            const marker = L.marker(ll, { icon }).addTo(group);
+            marker.bindPopup(`<div style="font-size: 11px; font-weight: bold;">${wp.label}</div>`);
+        });
+
+        // Fit Bounds
+        if (allLatLngs.length > 0) {
+            map.fitBounds(L.latLngBounds(allLatLngs), { padding: [40, 40], maxZoom: 14 });
+        }
+
+    }, [waypoints, routeCoords]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (mapInstance.current) {
+                mapInstance.current.remove();
+                mapInstance.current = null;
+                layerGroup.current = null;
+            }
+        };
+    }, []);
 
     if (waypoints.length < 2) return null;
 
-    // Compute bounds from all waypoints + route
-    const allPoints = [
-        ...waypoints.map(wp => L.latLng(wp.lat, wp.lng)),
-        ...routeCoords.map(c => L.latLng(c[0], c[1])),
-    ];
-    const bounds = allPoints.length > 0
-        ? L.latLngBounds(allPoints)
-        : L.latLngBounds([[9.17, 77.88], [9.17, 77.88]]);
-
-    const getIcon = (type: string) => {
-        switch (type) {
-            case 'pickup': return pickupIcon;
-            case 'drop': return dropIcon;
-            default: return stopIcon;
-        }
-    };
-
     return (
-        <MapContainer
-            center={[waypoints[0].lat, waypoints[0].lng]}
-            zoom={12}
+        <div
+            ref={mapRef}
             style={{ height: '100%', width: '100%', borderRadius: '12px', zIndex: 0 }}
-            scrollWheelZoom={true}
-            dragging={true}
-            zoomControl={true}
-            doubleClickZoom={true}
-            touchZoom={true}
-            attributionControl={false}
-        >
-            <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-
-            {/* Route line in red */}
-            {routeCoords.length > 0 && (
-                <Polyline
-                    positions={routeCoords}
-                    pathOptions={{
-                        color: '#dc2626',
-                        weight: 4,
-                        opacity: 0.85,
-                        dashArray: undefined,
-                    }}
-                />
-            )}
-
-            {/* Markers */}
-            {waypoints.map((wp, i) => (
-                <Marker key={i} position={[wp.lat, wp.lng]} icon={getIcon(wp.type)}>
-                    <Popup>
-                        <div className="text-xs font-bold">{wp.label}</div>
-                    </Popup>
-                </Marker>
-            ))}
-
-            <FitBounds bounds={bounds} />
-        </MapContainer>
+            className="leaflet-native-route-map"
+        />
     );
 }
