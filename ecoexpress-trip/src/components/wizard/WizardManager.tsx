@@ -35,8 +35,8 @@ interface WizardContextType {
 }
 
 const defaultData: WizardData = {
-    deliveryType: null,
-    serviceType: 'scheduled',
+    deliveryType: 'single',
+    serviceType: 'dedicated',
     pickupLocation: 'Kovilpatti Hub',
     pickupLatLng: null,
     dropLocation: '',
