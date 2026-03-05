@@ -1,9 +1,8 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { useEffect, useState } from 'react';
+import 'leaflet/dist/leaflet.css';
 
 // Fix Leaflet default icon broken in Vite/Webpack builds
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -23,7 +22,6 @@ const customIcon = new L.Icon({
     shadowSize: [41, 41]
 });
 
-// Kovilpatti Coordinates
 const DEFAULT_CENTER: [number, number] = [9.1725, 77.8812];
 
 interface MapProps {
@@ -32,55 +30,70 @@ interface MapProps {
     initialLng?: number;
 }
 
-function MapClickHandler({ onSelect }: { onSelect: (lat: number, lng: number) => void }) {
-    useMapEvents({
-        click(e) {
-            onSelect(e.latlng.lat, e.latlng.lng);
-        },
-    });
-    return null;
-}
-
-function MapUpdater({ center }: { center: [number, number] }) {
-    const map = useMap();
-    useEffect(() => {
-        map.flyTo(center, map.getZoom());
-    }, [center, map]);
-    return null;
-}
-
-export default function Map({ onLocationSelect, initialLat, initialLng }: MapProps) {
-    const center: [number, number] = (initialLat && initialLng)
-        ? [initialLat, initialLng]
-        : DEFAULT_CENTER;
-
-    const [markerPos, setMarkerPos] = useState<[number, number]>(center);
+export default function NativeMap({ onLocationSelect, initialLat, initialLng }: MapProps) {
+    const mapRef = useRef<HTMLDivElement>(null);
+    const mapInstance = useRef<L.Map | null>(null);
+    const markerInstance = useRef<L.Marker | null>(null);
 
     useEffect(() => {
-        if (initialLat && initialLng) {
-            setMarkerPos([initialLat, initialLng]);
+        if (!mapRef.current) return;
+
+        // Initialize map only once
+        if (!mapInstance.current) {
+            const center = initialLat && initialLng ? [initialLat, initialLng] as [number, number] : DEFAULT_CENTER;
+
+            mapInstance.current = L.map(mapRef.current).setView(center, 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(mapInstance.current);
+
+            // Add initial marker
+            markerInstance.current = L.marker(center, { icon: customIcon }).addTo(mapInstance.current);
+
+            // Handle map clicks
+            mapInstance.current.on('click', (e: L.LeafletMouseEvent) => {
+                const { lat, lng } = e.latlng;
+
+                // Move marker
+                if (markerInstance.current) {
+                    markerInstance.current.setLatLng([lat, lng]);
+                }
+
+                // Notify parent
+                onLocationSelect(lat, lng);
+            });
+
+            // Fix Leaflet rendering inside modals
+            setTimeout(() => {
+                mapInstance.current?.invalidateSize();
+            }, 100);
+        }
+
+        // Cleanup on unmount
+        return () => {
+            if (mapInstance.current) {
+                mapInstance.current.remove();
+                mapInstance.current = null;
+            }
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Only run on mount and unmount
+
+    // Handle updates from external initialLat/Lng (e.g. from search)
+    useEffect(() => {
+        if (mapInstance.current && markerInstance.current && initialLat && initialLng) {
+            const newPos: [number, number] = [initialLat, initialLng];
+            markerInstance.current.setLatLng(newPos);
+            mapInstance.current.setView(newPos, 14);
         }
     }, [initialLat, initialLng]);
 
-    const handleSelect = (lat: number, lng: number) => {
-        setMarkerPos([lat, lng]);
-        onLocationSelect(lat, lng);
-    };
-
     return (
-        <MapContainer
-            center={markerPos}
-            zoom={13}
-            style={{ height: '100%', width: '100%' }}
-            scrollWheelZoom
-        >
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <Marker position={markerPos} icon={customIcon} />
-            <MapClickHandler onSelect={handleSelect} />
-            <MapUpdater center={markerPos} />
-        </MapContainer>
+        <div
+            ref={mapRef}
+            style={{ width: '100%', height: '100%', zIndex: 1 }}
+            className="leaflet-native-map-container"
+        />
     );
 }
