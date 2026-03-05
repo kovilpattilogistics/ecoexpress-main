@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useWizard } from '@/components/wizard/WizardManager';
-import { MapPin, ChevronLeft, ChevronRight, Map, Globe } from 'lucide-react';
+import { MapPin, ChevronLeft, ChevronRight, Map, Globe, Navigation, Loader2 } from 'lucide-react';
 import { ZONE_A_TOWNS } from '@/lib/location-service';
 import { getRoadDistance } from '@/lib/road-distance';
 import { reverseGeocode, forwardGeocode } from '@/lib/reverse-geocode';
@@ -24,10 +24,28 @@ export function Step2Location() {
     // Map Picker State
     const [showMapPicker, setShowMapPicker] = useState(false);
     const [pickerField, setPickerField] = useState<string | null>(null);
+    const [gpsLoading, setGpsLoading] = useState(false);
 
     const openMapPicker = (field: string) => {
         setPickerField(field);
         setShowMapPicker(true);
+    };
+
+    const handleGPS = async (field: 'pickup' | 'drop' | 'end') => {
+        if (!navigator.geolocation) return;
+        setGpsLoading(true);
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                const latLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                const name = await reverseGeocode(latLng);
+                if (field === 'pickup') updateData({ pickupLocation: name, pickupLatLng: latLng });
+                else if (field === 'drop') updateData({ dropLocation: name, dropLatLng: latLng });
+                else if (field === 'end') updateData({ endLocation: name, endLatLng: latLng });
+                setGpsLoading(false);
+            },
+            () => setGpsLoading(false),
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
     };
 
     // Helper: compute total road distance from all waypoints
@@ -222,7 +240,7 @@ export function Step2Location() {
                             onBlur={() => handleBlurGeocode('pickup')}
                             placeholder="Enter pickup location..."
                             className={clsx(
-                                "w-full pl-12 pr-12 py-4 rounded-xl border-2 outline-none transition-all font-medium text-lg",
+                                "w-full pl-12 pr-24 py-4 rounded-xl border-2 outline-none transition-all font-medium text-lg",
                                 showErrors && !pickupValid
                                     ? "border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-50"
                                     : "border-gray-200 focus:border-primary focus:ring-4 focus:ring-green-50"
@@ -231,6 +249,14 @@ export function Step2Location() {
                         {showErrors && !pickupValid && (
                             <p className="text-xs text-red-500 font-medium mt-1.5 ml-1">* Pickup location is required</p>
                         )}
+                        {/* GPS Button */}
+                        <button
+                            onClick={() => handleGPS('pickup')}
+                            className="absolute right-14 top-1/2 -translate-y-1/2 p-2 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg transition-colors border border-green-200"
+                            title="Use GPS"
+                        >
+                            {gpsLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Navigation className="w-5 h-5" />}
+                        </button>
                         {/* Map Picker CTA */}
                         <button
                             onClick={() => openMapPicker('pickup')}
@@ -364,6 +390,14 @@ export function Step2Location() {
                         {showErrors && !dropValid && (
                             <p className="text-xs text-red-500 font-medium mt-1.5 ml-1">* {data.deliveryType === 'single' ? 'Drop' : 'End point'} location is required</p>
                         )}
+                        {/* GPS Button */}
+                        <button
+                            onClick={() => handleGPS(data.deliveryType === 'single' ? 'drop' : 'end')}
+                            className="absolute right-14 top-1/2 -translate-y-1/2 p-2 bg-green-50 hover:bg-green-100 text-green-600 rounded-lg transition-colors border border-green-200"
+                            title="Use GPS"
+                        >
+                            {gpsLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Navigation className="w-5 h-5" />}
+                        </button>
                         {/* Map Picker CTA */}
                         <button
                             onClick={() => openMapPicker(data.deliveryType === 'single' ? 'drop' : 'end')}
