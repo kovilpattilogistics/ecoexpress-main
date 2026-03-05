@@ -102,7 +102,7 @@ function PricingCard({
                 onClick={() => setShowDetails(!showDetails)}
                 className={clsx(
                     "mt-3 text-xs font-bold flex items-center gap-1 transition-colors",
-                    showDetails ? "text-gray-600" : "text-[var(--primary)] hover:text-green-700"
+                    showDetails ? "text-gray-600" : "text-primary hover:text-green-700"
                 )}
             >
                 {showDetails ? 'Hide details' : '📋 View breakdown'}
@@ -239,7 +239,7 @@ export function Step4QuoteView({ quote, serviceType }: Props) {
     return (
         <div className="flex flex-col h-full bg-gray-50">
             {/* Header */}
-            <div className="bg-gradient-to-br from-[var(--primary)] via-emerald-600 to-green-700 px-6 py-6 text-white shadow-lg rounded-b-3xl z-10 relative overflow-hidden">
+            <div className="bg-gradient-to-br from-primary via-emerald-600 to-green-700 px-6 py-6 text-white shadow-lg rounded-b-3xl z-10 relative overflow-hidden">
                 {/* Decorative circles */}
                 <div className="absolute top-[-30px] right-[-20px] w-32 h-32 rounded-full bg-white/5 blur-sm" />
                 <div className="absolute bottom-[-20px] left-[20%] w-24 h-24 rounded-full bg-white/5 blur-sm" />

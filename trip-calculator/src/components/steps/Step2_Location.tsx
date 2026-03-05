@@ -195,7 +195,7 @@ export function Step2Location() {
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Step 2 of 4</span>
-                    <button onClick={toggleLang} className="flex flex-col items-center justify-center p-1 text-gray-500 hover:text-[var(--primary)] transition-colors border border-transparent rounded-lg">
+                    <button onClick={toggleLang} className="flex flex-col items-center justify-center p-1 text-gray-500 hover:text-primary transition-colors border border-transparent rounded-lg">
                         <Globe className="w-5 h-5" />
                         <span className="text-[10px] leading-none mt-0.5">{lang === 'en' ? 'EN' : 'TA'}</span>
                     </button>
@@ -225,7 +225,7 @@ export function Step2Location() {
                                 "w-full pl-12 pr-12 py-4 rounded-xl border-2 outline-none transition-all font-medium text-lg",
                                 showErrors && !pickupValid
                                     ? "border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-50"
-                                    : "border-gray-200 focus:border-[var(--primary)] focus:ring-4 focus:ring-green-50"
+                                    : "border-gray-200 focus:border-primary focus:ring-4 focus:ring-green-50"
                             )}
                         />
                         {showErrors && !pickupValid && (
@@ -268,7 +268,7 @@ export function Step2Location() {
                             <div key={index} className="relative group animate-in fade-in slide-in-from-left-4 duration-300">
                                 <div className="flex items-center gap-2">
                                     <div className="flex-1 relative">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-xs font-bold">
+                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
                                             {String.fromCharCode(65 + index)}
                                         </div>
                                         <input
@@ -281,7 +281,7 @@ export function Step2Location() {
                                                 handleSearch(e.target.value, 'stop', index);
                                             }}
                                             placeholder={`Stop ${String.fromCharCode(65 + index)}`}
-                                            className="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-green-50 outline-none transition-all text-sm font-medium"
+                                            className="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-green-50 outline-none transition-all text-sm font-medium"
                                         />
                                         {/* Map Picker CTA */}
                                         <button
@@ -330,7 +330,7 @@ export function Step2Location() {
                                 const newStops = [...(data.stops || []), ''];
                                 updateData({ stops: newStops, stopsCount: newStops.length });
                             }}
-                            className="w-full py-3 border-2 border-dashed border-[var(--primary)] text-[var(--primary)] rounded-xl font-bold text-sm hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
+                            className="w-full py-3 border-2 border-dashed border-primary text-primary rounded-xl font-bold text-sm hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
                         >
                             <span>+ Add Stop</span>
                         </button>
@@ -358,7 +358,7 @@ export function Step2Location() {
                                 "w-full pl-12 pr-14 py-4 rounded-xl border-2 outline-none transition-all font-medium text-lg",
                                 showErrors && !dropValid
                                     ? "border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-50"
-                                    : "border-gray-200 focus:border-[var(--primary)] focus:ring-4 focus:ring-green-50"
+                                    : "border-gray-200 focus:border-primary focus:ring-4 focus:ring-green-50"
                             )}
                         />
                         {showErrors && !dropValid && (
@@ -426,7 +426,7 @@ export function Step2Location() {
             <div className="p-6 bg-white border-t border-gray-100">
                 <button
                     onClick={handleContinue}
-                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-lg font-bold transition-all shadow-md shadow-green-200/50 bg-gradient-to-r from-[var(--primary)] to-emerald-600 text-white hover:from-[#1b5e20] hover:to-emerald-700 transform active:scale-95"
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-lg font-bold transition-all shadow-md shadow-green-200/50 bg-gradient-to-r from-primary to-emerald-600 text-white hover:from-[#1b5e20] hover:to-emerald-700 transform active:scale-95"
                 >
                     CONTINUE
                     <ChevronRight className="w-5 h-5" />

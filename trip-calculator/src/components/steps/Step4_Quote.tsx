@@ -72,7 +72,7 @@ export function Step4Quote() {
             <div className="flex flex-col items-center justify-center h-full bg-gradient-to-b from-green-50 to-white space-y-5">
                 <div className="relative">
                     <div className="absolute inset-0 bg-green-200/20 rounded-full blur-xl animate-pulse" />
-                    <Loader2 className="w-14 h-14 text-[var(--primary)] animate-spin relative z-10" />
+                    <Loader2 className="w-14 h-14 text-primary animate-spin relative z-10" />
                 </div>
                 <div className="text-center space-y-1">
                     <p className="text-gray-700 font-bold text-lg">Calculating route...</p>

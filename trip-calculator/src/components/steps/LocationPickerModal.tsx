@@ -180,7 +180,7 @@ export function LocationPickerModal({ isOpen, onClose, onConfirm, initialLocatio
                     <button
                         onClick={handleConfirm}
                         disabled={!selectedCoords}
-                        className="w-full py-3.5 bg-[var(--primary)] text-white font-bold rounded-xl hover:bg-[#1b5e20] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 active:scale-[0.98] shadow-lg shadow-green-900/10"
+                        className="w-full py-3.5 bg-primary text-white font-bold rounded-xl hover:bg-[#1b5e20] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 active:scale-[0.98] shadow-lg shadow-green-900/10"
                     >
                         <Check className="w-5 h-5" />
                         Confirm Location

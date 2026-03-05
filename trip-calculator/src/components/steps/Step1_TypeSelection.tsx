@@ -67,7 +67,7 @@ export function Step1TypeSelection() {
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Step 1 of 4</span>
-                    <button onClick={toggleLang} className="flex flex-col items-center justify-center p-1 text-gray-500 hover:text-[var(--primary)] transition-colors border border-transparent rounded-lg">
+                    <button onClick={toggleLang} className="flex flex-col items-center justify-center p-1 text-gray-500 hover:text-primary transition-colors border border-transparent rounded-lg">
                         <Globe className="w-5 h-5" />
                         <span className="text-[10px] leading-none mt-0.5">{lang === 'en' ? 'EN' : 'TA'}</span>
                     </button>
@@ -91,19 +91,19 @@ export function Step1TypeSelection() {
                             className={clsx(
                                 'flex-1 text-left bg-white p-4 rounded-2xl shadow-sm border-2 transition-all duration-300',
                                 data.deliveryType === 'single'
-                                    ? 'border-[var(--primary)] bg-gradient-to-br from-green-50 to-emerald-50 shadow-md ring-1 ring-[var(--primary)] scale-[1.02]'
+                                    ? 'border-primary bg-gradient-to-br from-green-50 to-emerald-50 shadow-md ring-1 ring-primary scale-[1.02]'
                                     : 'border-transparent hover:border-gray-200 hover:shadow-md'
                             )}
                         >
                             <div className="flex items-center gap-3">
                                 <div className={clsx(
                                     "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all",
-                                    data.deliveryType === 'single' ? "bg-[var(--primary)] text-white shadow-lg shadow-green-200" : "bg-gray-100 text-gray-500"
+                                    data.deliveryType === 'single' ? "bg-primary text-white shadow-lg shadow-green-200" : "bg-gray-100 text-gray-500"
                                 )}>
                                     <Store className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h3 className={clsx("font-bold text-sm", data.deliveryType === 'single' ? "text-[var(--primary)]" : "text-gray-900")}>
+                                    <h3 className={clsx("font-bold text-sm", data.deliveryType === 'single' ? "text-primary" : "text-gray-900")}>
                                         SINGLE DROP
                                     </h3>
                                     <p className="text-xs text-gray-500">One pickup → one drop</p>
@@ -117,19 +117,19 @@ export function Step1TypeSelection() {
                             className={clsx(
                                 'flex-1 text-left bg-white p-4 rounded-2xl shadow-sm border-2 transition-all duration-300',
                                 data.deliveryType === 'multiple'
-                                    ? 'border-[var(--primary)] bg-gradient-to-br from-green-50 to-emerald-50 shadow-md ring-1 ring-[var(--primary)] scale-[1.02]'
+                                    ? 'border-primary bg-gradient-to-br from-green-50 to-emerald-50 shadow-md ring-1 ring-primary scale-[1.02]'
                                     : 'border-transparent hover:border-gray-200 hover:shadow-md'
                             )}
                         >
                             <div className="flex items-center gap-3">
                                 <div className={clsx(
                                     "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all",
-                                    data.deliveryType === 'multiple' ? "bg-[var(--primary)] text-white shadow-lg shadow-green-200" : "bg-gray-100 text-gray-500"
+                                    data.deliveryType === 'multiple' ? "bg-primary text-white shadow-lg shadow-green-200" : "bg-gray-100 text-gray-500"
                                 )}>
                                     <Truck className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h3 className={clsx("font-bold text-sm", data.deliveryType === 'multiple' ? "text-[var(--primary)]" : "text-gray-900")}>
+                                    <h3 className={clsx("font-bold text-sm", data.deliveryType === 'multiple' ? "text-primary" : "text-gray-900")}>
                                         MULTIPLE DROP
                                     </h3>
                                     <p className="text-xs text-gray-500">2-30 drop stops</p>
@@ -203,7 +203,7 @@ export function Step1TypeSelection() {
                     className={clsx(
                         'w-full flex items-center justify-center gap-2 py-4 rounded-xl text-lg font-bold transition-all shadow-md',
                         data.deliveryType
-                            ? 'bg-gradient-to-r from-[var(--primary)] to-emerald-600 text-white hover:from-[#1b5e20] hover:to-emerald-700 transform active:scale-95 shadow-green-200/50'
+                            ? 'bg-gradient-to-r from-primary to-emerald-600 text-white hover:from-[#1b5e20] hover:to-emerald-700 transform active:scale-95 shadow-green-200/50'
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
                     )}
                 >

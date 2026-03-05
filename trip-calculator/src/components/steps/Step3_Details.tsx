@@ -60,7 +60,7 @@ export function Step3Details() {
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Step 3 of 4</span>
-                    <button onClick={toggleLang} className="flex flex-col items-center justify-center p-1 text-gray-500 hover:text-[var(--primary)] transition-colors border border-transparent rounded-lg">
+                    <button onClick={toggleLang} className="flex flex-col items-center justify-center p-1 text-gray-500 hover:text-primary transition-colors border border-transparent rounded-lg">
                         <Globe className="w-5 h-5" />
                         <span className="text-[10px] leading-none mt-0.5">{lang === 'en' ? 'EN' : 'TA'}</span>
                     </button>
@@ -96,7 +96,7 @@ export function Step3Details() {
                                     value={localWeight}
                                     onChange={(e) => handleWeightInput(e.target.value)}
                                     onBlur={handleWeightBlur}
-                                    className="w-24 text-5xl font-black text-[var(--primary)] tracking-tight text-center bg-transparent outline-none border-b-2 border-transparent focus:border-[var(--primary)] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className="w-24 text-5xl font-black text-primary tracking-tight text-center bg-transparent outline-none border-b-2 border-transparent focus:border-primary transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     min={1}
                                     max={1000}
                                 />
@@ -105,7 +105,7 @@ export function Step3Details() {
 
                             <button
                                 onClick={() => handleWeightChange(5)}
-                                className="w-14 h-14 rounded-full bg-gradient-to-br from-[var(--primary)] to-emerald-600 flex items-center justify-center text-3xl font-bold text-white active:from-[#1b5e20] shadow-xl shadow-green-200/50 hover:shadow-green-300/50 transition-all"
+                                className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-3xl font-bold text-white active:from-[#1b5e20] shadow-xl shadow-green-200/50 hover:shadow-green-300/50 transition-all"
                             >
                                 +
                             </button>
@@ -120,7 +120,7 @@ export function Step3Details() {
                                     className={clsx(
                                         "flex-1 py-2 rounded-lg text-xs font-bold transition-all",
                                         data.weight === w
-                                            ? "bg-[var(--primary)] text-white shadow-md"
+                                            ? "bg-primary text-white shadow-md"
                                             : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                                     )}
                                 >
@@ -175,7 +175,7 @@ export function Step3Details() {
                         placeholder="e.g. Oil Cans, Rice Bags, Electronics..."
                         value={data.productType || ''}
                         onChange={(e) => updateData({ productType: e.target.value })}
-                        className="w-full bg-white p-4 rounded-xl border border-gray-200 text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-green-50 transition-all"
+                        className="w-full bg-white p-4 rounded-xl border border-gray-200 text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-green-50 transition-all"
                     />
                 </section>
 
@@ -225,7 +225,7 @@ export function Step3Details() {
             <div className="p-6 bg-white border-t border-gray-100">
                 <button
                     onClick={goToNextStep}
-                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-lg font-bold bg-gradient-to-r from-[var(--primary)] to-emerald-600 text-white hover:from-[#1b5e20] hover:to-emerald-700 transform active:scale-95 shadow-md shadow-green-200/50 transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-lg font-bold bg-gradient-to-r from-primary to-emerald-600 text-white hover:from-[#1b5e20] hover:to-emerald-700 transform active:scale-95 shadow-md shadow-green-200/50 transition-all"
                 >
                     GET PRICE
                     <ChevronRight className="w-5 h-5" />

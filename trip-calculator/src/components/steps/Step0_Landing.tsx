@@ -22,7 +22,7 @@ export function Step0Landing() {
                 <div className="absolute top-4 right-4 z-50">
                     <button
                         onClick={toggleLang}
-                        className="flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-[var(--primary)] bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full px-3 py-1 transition shadow-sm"
+                        className="flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-primary bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full px-3 py-1 transition shadow-sm"
                     >
                         <Globe className="w-4 h-4" />
                         {lang === 'en' ? 'English' : 'தமிழ்'}
@@ -39,13 +39,13 @@ export function Step0Landing() {
                 </div>
 
                 <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
-                    Eco<span className="text-[var(--primary)]">Express</span>
+                    Eco<span className="text-primary">Express</span>
                 </h1>
 
                 <div className="space-y-2 max-w-xs mx-auto">
                     <p className="text-lg font-medium text-gray-800 flex items-center justify-center gap-2">
                         <Sparkles className="w-5 h-5 text-amber-500" />
-                        Get your price in <span className="text-[var(--primary)] font-bold">30 seconds</span>
+                        Get your price in <span className="text-primary font-bold">30 seconds</span>
                     </p>
                     <p className="text-sm text-gray-500">
                         Instant quotes for Kovilpatti & surrounding areas
@@ -55,7 +55,7 @@ export function Step0Landing() {
                 {/* Start Button */}
                 <button
                     onClick={goToNextStep}
-                    className="group w-full max-w-xs bg-gradient-to-r from-[var(--primary)] to-emerald-600 hover:from-[#1b5e20] hover:to-emerald-700 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-lg shadow-green-200/50 transform transition-all active:scale-95 flex items-center justify-center gap-2 mt-6"
+                    className="group w-full max-w-xs bg-gradient-to-r from-primary to-emerald-600 hover:from-[#1b5e20] hover:to-emerald-700 text-white text-lg font-bold py-4 px-8 rounded-2xl shadow-lg shadow-green-200/50 transform transition-all active:scale-95 flex items-center justify-center gap-2 mt-6"
                 >
                     START CALCULATION
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -80,7 +80,7 @@ export function Step0Landing() {
 
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
                     <div className="flex items-start gap-3">
-                        <MapPin className="w-5 h-5 text-[var(--primary)] mt-0.5 flex-shrink-0" />
+                        <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                         <div>
                             <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Zone-A Coverage</h3>
                             <p className="text-sm text-gray-800 font-medium leading-relaxed">
