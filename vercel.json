@@ -11,11 +11,23 @@
             "dest": "/ecoexpress-water/index.html"
         },
         {
+            "src": "/water-delivery/assets/(.*)",
+            "dest": "/ecoexpress-water/assets/$1"
+        },
+        {
+            "src": "/water-delivery(.*)",
+            "dest": "/ecoexpress-water/index.html"
+        },
+        {
             "src": "/ecoexpress-trip/assets/(.*)",
             "dest": "/ecoexpress-trip/assets/$1"
         },
         {
             "src": "/ecoexpress-trip/(.*)",
+            "dest": "/ecoexpress-trip/index.html"
+        },
+        {
+            "src": "/trip-calculator(.*)",
             "dest": "/ecoexpress-trip/index.html"
         },
         {
