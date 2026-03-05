@@ -169,11 +169,6 @@ export function LocationPickerModal({ isOpen, onClose, onConfirm, initialLocatio
                         initialLng={mapCenter?.[1]}
                     />
 
-                    {/* Crosshair center hint */}
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-[500]">
-                        <div className="w-6 h-6 border-2 border-green-500 rounded-full bg-white/50" />
-                    </div>
-
                     {/* Selected Location pill */}
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur px-5 py-2.5 rounded-full shadow-lg border border-gray-100 flex items-center gap-2 z-[1000] max-w-[90%] pointer-events-none">
                         {isResolving
