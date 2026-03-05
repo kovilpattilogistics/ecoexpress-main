@@ -2,11 +2,13 @@
 
 import React from 'react';
 import { useWizard } from '@/components/wizard/WizardManager';
-import { Store, Truck, ChevronRight, ChevronLeft, Calendar, Zap, TruckIcon } from 'lucide-react';
+import { Store, Truck, ChevronRight, ChevronLeft, Calendar, Zap, TruckIcon, Globe } from 'lucide-react';
 import { clsx } from 'clsx';
+import { TRANSLATIONS } from '@/lib/translations';
 
 export function Step1TypeSelection() {
-    const { data, updateData, goToNextStep, goToPreviousStep } = useWizard();
+    const { data, updateData, goToNextStep, goToPreviousStep, lang, toggleLang } = useWizard();
+    const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
 
     const handleDeliverySelect = (type: 'single' | 'multiple') => {
         updateData({ deliveryType: type });
@@ -65,7 +67,10 @@ export function Step1TypeSelection() {
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Step 1 of 4</span>
-                    <div className="w-8" />
+                    <button onClick={toggleLang} className="flex flex-col items-center justify-center p-1 text-gray-500 hover:text-[var(--primary)] transition-colors border border-transparent rounded-lg">
+                        <Globe className="w-5 h-5" />
+                        <span className="text-[10px] leading-none mt-0.5">{lang === 'en' ? 'EN' : 'TA'}</span>
+                    </button>
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 leading-tight">
                     Configure your delivery

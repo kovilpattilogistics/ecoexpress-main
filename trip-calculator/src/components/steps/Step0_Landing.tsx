@@ -2,11 +2,13 @@
 
 import React from 'react';
 // 
-import { ArrowRight, CheckCircle, MapPin, Sparkles, Truck, Shield, Leaf } from 'lucide-react';
+import { ArrowRight, CheckCircle, MapPin, Sparkles, Truck, Shield, Leaf, Globe } from 'lucide-react';
 import { useWizard } from '@/components/wizard/WizardManager';
+import { TRANSLATIONS } from '@/lib/translations';
 
 export function Step0Landing() {
-    const { goToNextStep } = useWizard();
+    const { goToNextStep, lang, toggleLang } = useWizard();
+    const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
 
     return (
         <div className="flex flex-col h-full bg-gradient-to-b from-green-50 via-white to-white relative overflow-hidden">
@@ -16,11 +18,21 @@ export function Step0Landing() {
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-5 relative z-10">
+                {/* Language Toggle */}
+                <div className="absolute top-4 right-4 z-50">
+                    <button
+                        onClick={toggleLang}
+                        className="flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-[var(--primary)] bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full px-3 py-1 transition shadow-sm"
+                    >
+                        <Globe className="w-4 h-4" />
+                        {lang === 'en' ? 'English' : 'தமிழ்'}
+                    </button>
+                </div>
                 {/* Logo with glow */}
                 <div className="relative w-36 h-36 mb-2">
                     <div className="absolute inset-0 bg-green-200/30 rounded-full blur-xl animate-pulse" />
                     <img
-                        src="/logo.png"
+                        src="/trip-calculator/logo.png"
                         alt="EcoExpress Logo"
                         className="w-full h-full object-contain drop-shadow-lg relative z-10"
                     />

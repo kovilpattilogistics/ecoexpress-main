@@ -1,6 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
+import { Language } from '@/lib/translations';
+import { getEcoLang, setEcoLang } from '@/lib/lang';
 
 // Define the shape of our wizard state
 interface WizardData {
@@ -28,6 +30,8 @@ interface WizardContextType {
     goToStep: (step: number) => void;
     updateData: (partialData: Partial<WizardData>) => void;
     resetWizard: () => void;
+    lang: Language;
+    toggleLang: () => void;
 }
 
 const defaultData: WizardData = {
@@ -51,6 +55,15 @@ const WizardContext = createContext<WizardContextType | undefined>(undefined);
 export function WizardProvider({ children }: { children: ReactNode }) {
     const [currentStep, setCurrentStep] = useState(0);
     const [data, setData] = useState<WizardData>(defaultData);
+    const [lang, setLang] = useState<Language>(() => getEcoLang());
+
+    useEffect(() => {
+        setEcoLang(lang);
+    }, [lang]);
+
+    const toggleLang = useCallback(() => {
+        setLang(prev => (prev === 'en' ? 'ta' : 'en'));
+    }, []);
 
     const goToNextStep = useCallback(() => setCurrentStep((prev) => Math.min(prev + 1, 4)), []);
     const goToPreviousStep = useCallback(() => setCurrentStep((prev) => Math.max(prev - 1, 0)), []);
@@ -73,7 +86,9 @@ export function WizardProvider({ children }: { children: ReactNode }) {
         goToStep,
         updateData,
         resetWizard,
-    }), [currentStep, data, goToNextStep, goToPreviousStep, goToStep, updateData, resetWizard]);
+        lang,
+        toggleLang,
+    }), [currentStep, data, goToNextStep, goToPreviousStep, goToStep, updateData, resetWizard, lang, toggleLang]);
 
     return (
         <WizardContext.Provider value={value}>

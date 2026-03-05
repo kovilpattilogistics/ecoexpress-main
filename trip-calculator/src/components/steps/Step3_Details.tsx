@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useWizard } from '@/components/wizard/WizardManager';
-import { ChevronLeft, ChevronRight, Package, Scale, ShoppingBag, Clock, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Package, Scale, ShoppingBag, Clock, Info, Globe } from 'lucide-react';
 import { clsx } from 'clsx';
+import { TRANSLATIONS } from '@/lib/translations';
 
 const WEIGHT_PRESETS = [10, 25, 50, 100, 250, 500];
 
 export function Step3Details() {
-    const { data, updateData, goToNextStep, goToPreviousStep } = useWizard();
+    const { data, updateData, goToNextStep, goToPreviousStep, lang, toggleLang } = useWizard();
+    const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
 
     // Local weight state for smooth typing
     const [localWeight, setLocalWeight] = useState(String(data.weight));
@@ -58,7 +60,10 @@ export function Step3Details() {
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Step 3 of 4</span>
-                    <div className="w-8" />
+                    <button onClick={toggleLang} className="flex flex-col items-center justify-center p-1 text-gray-500 hover:text-[var(--primary)] transition-colors border border-transparent rounded-lg">
+                        <Globe className="w-5 h-5" />
+                        <span className="text-[10px] leading-none mt-0.5">{lang === 'en' ? 'EN' : 'TA'}</span>
+                    </button>
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 leading-tight">
                     What are you sending?

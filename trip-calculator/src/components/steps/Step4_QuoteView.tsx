@@ -2,9 +2,10 @@
 
 import React, { useState, useMemo } from 'react';
 import { QuoteResult, PriceBreakdown } from '@/lib/pricing-engine';
-import { MessageCircle, Phone, RotateCcw, ChevronDown, ChevronUp, ChevronLeft, Check, Calendar, Truck, Zap, MapPin, Package, Route, Clock, Weight } from 'lucide-react';
+import { MessageCircle, Phone, RotateCcw, ChevronDown, ChevronUp, ChevronLeft, Check, Calendar, Truck, Zap, MapPin, Package, Route, Clock, Weight, Globe } from 'lucide-react';
 import { useWizard } from '@/components/wizard/WizardManager';
 import { clsx } from 'clsx';
+import { TRANSLATIONS } from '@/lib/translations';
 
 
 // Dynamically import RouteMap to avoid SSR issues with Leaflet
@@ -166,7 +167,8 @@ function PricingCard({
 }
 
 export function Step4QuoteView({ quote, serviceType }: Props) {
-    const { resetWizard, goToPreviousStep, data } = useWizard();
+    const { resetWizard, goToPreviousStep, data, lang, toggleLang } = useWizard();
+    const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
 
     const selectedTier = quote[serviceType];
 
@@ -241,10 +243,16 @@ export function Step4QuoteView({ quote, serviceType }: Props) {
                 {/* Decorative circles */}
                 <div className="absolute top-[-30px] right-[-20px] w-32 h-32 rounded-full bg-white/5 blur-sm" />
                 <div className="absolute bottom-[-20px] left-[20%] w-24 h-24 rounded-full bg-white/5 blur-sm" />
-                <button onClick={goToPreviousStep} className="flex items-center gap-1 text-green-200 hover:text-white mb-3 -ml-1 text-sm font-medium transition-colors relative z-10">
-                    <ChevronLeft className="w-4 h-4" />
-                    Back
-                </button>
+                <div className="flex items-center justify-between mb-3 relative z-10">
+                    <button onClick={goToPreviousStep} className="flex items-center gap-1 text-green-200 hover:text-white -ml-1 text-sm font-medium transition-colors">
+                        <ChevronLeft className="w-4 h-4" />
+                        Back
+                    </button>
+                    <button onClick={toggleLang} className="flex items-center justify-center gap-1 px-2 py-1 bg-white/10 hover:bg-white/20 rounded-full text-white text-xs font-bold transition-colors">
+                        <Globe className="w-3.5 h-3.5" />
+                        {lang === 'en' ? 'EN' : 'TA'}
+                    </button>
+                </div>
                 <div className="flex items-center gap-2 mb-2 opacity-90 relative z-10">
                     <Check className="w-5 h-5" />
                     <span className="text-sm font-bold uppercase tracking-widest">✨ Quote Ready</span>
