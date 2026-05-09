@@ -246,13 +246,18 @@ function calculateDedicated(
     // 2) Base charge = ₹100
     // 3) Total = Base + (km * 15)
     // 4) For jobs > 4 hours, minimum is ₹1200
+    // 5) Waiting: First 3 hours free, then ₹250 per extra hour
     const estimatedDriveHours = totalDistance / 30; // Assuming ~30 km/h average speed
     const estimatedTotalHours = estimatedDriveHours + expectedWaitingHours;
     
     const baseCharge = 100;
     const perKmRate = 15;
     const distanceCharge = totalDistance * perKmRate;
-    let calculatedTotal = baseCharge + distanceCharge;
+    
+    const extraWaitHrs = Math.ceil(Math.max(0, expectedWaitingHours - 3));
+    const explicitWaitingCharge = extraWaitHrs * 250;
+    
+    let calculatedTotal = baseCharge + distanceCharge + explicitWaitingCharge;
     
     // Apply Minimums
     const minTicket = estimatedTotalHours > 4 ? 1200 : 0;
@@ -260,7 +265,7 @@ function calculateDedicated(
     
     // Distribute any minimum ticket adjustment into waitingCharge (or just add as base adjustment)
     const minAdjustment = Math.max(0, finalTotal - calculatedTotal);
-    const totalWaitingCharge = minAdjustment; 
+    const totalWaitingCharge = explicitWaitingCharge + minAdjustment; 
 
     return {
         base: baseCharge,
@@ -270,7 +275,9 @@ function calculateDedicated(
         waitingCharge: totalWaitingCharge,
         total: finalTotal,
         model: 'Dedicated - Long Range',
-        note: `${distLabel} × ₹${perKmRate}/km. Base ₹100. Minimum ₹${minTicket} applied (~${estimatedTotalHours.toFixed(1)}h total time).`,
+        note: `${distLabel} × ₹${perKmRate}/km. Base ₹100.` + 
+            (explicitWaitingCharge > 0 ? ` Waiting: ${extraWaitHrs}h × ₹250/hr.` : '') +
+            (minAdjustment > 0 ? ` Minimum ₹1200 applied (~${estimatedTotalHours.toFixed(1)}h total time).` : ''),
     };
 }
 
