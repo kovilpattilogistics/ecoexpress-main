@@ -150,27 +150,61 @@ function calculateDedicated(
         };
     }
 
-    // DEDICATED SINGLE DROP pricing (Short Distances <= 10km)
-    if (isSingleShop && oneWayDistance <= 10) {
-        const extraWaitHrs = Math.max(0, expectedWaitingHours - 1);
-        const waitingCharge = extraWaitHrs * 200;
-
-        if (oneWayDistance <= 5) {
-            // ≤ 5 km one-way: flat ₹200 + waiting
-            const flatRate = 200;
+    // --- TOWN TRIPS (<= 6 km) ---
+    if (oneWayDistance <= 6) {
+        if (!isSingleShop) {
+            // 3) Multiple drops inside town
+            const extraStops = Math.max(0, stops - 1);
+            const totalTownPrice = 250 + (extraStops * 50);
+            const finalTownPrice = Math.max(totalTownPrice, 350);
+            
             return {
-                base: flatRate,
-                stopsCharge: 0,
+                base: 250,
+                stopsCharge: extraStops * 50,
                 weightCharge: 0,
                 distanceCharge: 0,
-                waitingCharge,
-                total: flatRate + waitingCharge,
-                model: 'Dedicated - Single Drop',
-                note: `Within 5 km — standard ₹${flatRate}.` +
-                    (waitingCharge > 0 ? ` Waiting: ${extraWaitHrs}h × ₹200/hr.` : ' First 1 hour free, ₹200/hr extra.'),
+                waitingCharge: finalTownPrice - totalTownPrice, // Minimum adjustment
+                total: finalTownPrice,
+                model: 'Dedicated - Town (Multiple Drops)',
+                note: `Town multi-drop. Base ₹250 + ₹50/extra stop. Minimum ₹350 applied.`,
             };
         } else {
-            // > 5 km one-way: ₹100 base + round-trip km × ₹15/km + waiting
+            // 1) Base town trip (0-3 km / up to 30 min)
+            // 2) Extended town trip (3-6 km OR 30-60 min)
+            const isBaseTown = oneWayDistance <= 3 && expectedWaitingHours <= 0.5;
+            
+            if (isBaseTown) {
+                return {
+                    base: 250,
+                    stopsCharge: 0,
+                    weightCharge: 0,
+                    distanceCharge: 0,
+                    waitingCharge: 0,
+                    total: 250,
+                    model: 'Dedicated - Base Town',
+                    note: `Up to 3 km / 30 min. Fixed ₹250.`,
+                };
+            } else {
+                const price = oneWayDistance <= 4.5 ? 300 : 350;
+                return {
+                    base: price,
+                    stopsCharge: 0,
+                    weightCharge: 0,
+                    distanceCharge: 0,
+                    waitingCharge: 0,
+                    total: price,
+                    model: 'Dedicated - Extended Town',
+                    note: `Extended town trip (up to 6 km or >30 min). Fixed ₹${price}.`,
+                };
+            }
+        }
+    }
+
+    // --- MEDIUM TRIPS (6-10 km) ---
+    if (oneWayDistance > 6 && oneWayDistance <= 10) {
+        if (isSingleShop) {
+            const extraWaitHrs = Math.max(0, expectedWaitingHours - 1);
+            const waitingCharge = extraWaitHrs * 200;
             const distanceCharge = totalDistance * 15;
             return {
                 base: SINGLE_DROP_BASE,
@@ -179,55 +213,30 @@ function calculateDedicated(
                 distanceCharge,
                 waitingCharge,
                 total: SINGLE_DROP_BASE + distanceCharge + waitingCharge,
-                model: 'Dedicated - Single Drop',
+                model: 'Dedicated - Medium (Single Drop)',
                 note: `${distLabel} × ₹15/km.` +
                     (waitingCharge > 0 ? ` Waiting: ${extraWaitHrs}h × ₹200/hr.` : ' First 1 hour free, ₹200/hr extra.'),
             };
+        } else {
+            const extraStops = Math.max(0, stops - 1);
+            const stopsCharge = extraStops * DED_MED_EXTRA_STOP;
+            const distanceCharge = totalDistance * DED_MED_PER_KM;
+            const extraWaitHrs = Math.max(0, expectedWaitingHours - 1);
+            const waitingCharge = extraWaitHrs * 200;
+            const base = DED_MED_BASE;
+            const total = base + stopsCharge + distanceCharge + waitingCharge;
+            return {
+                base,
+                stopsCharge,
+                weightCharge: 0,
+                distanceCharge,
+                waitingCharge,
+                total,
+                model: 'Dedicated - Medium (Multiple Drops)',
+                note: `${distLabel} × ₹${DED_MED_PER_KM}/km.` +
+                    (waitingCharge > 0 ? ` Waiting: ${extraWaitHrs}h × ₹200/hr.` : ' First 1 hour free.'),
+            };
         }
-    }
-
-    // MODEL 1: Local (<3 km from Kovilpatti center) - Multiple Drops
-    if (pickupRadius < 3 && oneWayDistance < 3) {
-        const extraStops = Math.max(0, stops - 1);
-        const stopsCharge = extraStops * DED_LOCAL_EXTRA_STOP;
-        const extraWaitHrs = Math.max(0, expectedWaitingHours - 1);
-        const waitingCharge = extraWaitHrs * 200; // ₹200/hour after first free hour
-        const base = DED_LOCAL_BASE;
-        const total = base + stopsCharge + waitingCharge;
-        return {
-            base,
-            stopsCharge,
-            weightCharge: 0,
-            distanceCharge: 0,
-            waitingCharge,
-            total,
-            model: 'Dedicated - Local',
-            note: waitingCharge > 0
-                ? `Within 3 km. Waiting: ${extraWaitHrs}h × ₹200/hr.`
-                : `Within 3 km. First 1 hour free, ₹200/hour extra.`,
-        };
-    }
-
-    // MODEL 2: Medium (3-10 km) - Multiple Drops
-    if (oneWayDistance >= 3 && oneWayDistance <= 10) {
-        const extraStops = Math.max(0, stops - 1);
-        const stopsCharge = extraStops * DED_MED_EXTRA_STOP;
-        const distanceCharge = totalDistance * DED_MED_PER_KM;
-        const extraWaitHrs = Math.max(0, expectedWaitingHours - 1);
-        const waitingCharge = extraWaitHrs * 200; // ₹200/hour after first free hour
-        const base = DED_MED_BASE;
-        const total = base + stopsCharge + distanceCharge + waitingCharge;
-        return {
-            base,
-            stopsCharge,
-            weightCharge: 0,
-            distanceCharge,
-            waitingCharge,
-            total,
-            model: 'Dedicated - Medium',
-            note: `${distLabel} × ₹${DED_MED_PER_KM}/km.` +
-                (waitingCharge > 0 ? ` Waiting: ${extraWaitHrs}h × ₹200/hr.` : ' First 1 hour free.'),
-        };
     }
 
     // --- LONG-RANGE TRIPS (>10 km) ---
