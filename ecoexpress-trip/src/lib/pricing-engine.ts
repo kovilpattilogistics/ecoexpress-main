@@ -155,23 +155,23 @@ function calculateDedicated(
         if (!isSingleShop) {
             // 3) Multiple drops inside town
             const extraStops = Math.max(0, stops - 1);
-            const totalTownPrice = 250 + (extraStops * 50);
-            const finalTownPrice = Math.max(totalTownPrice, 350);
+            const totalTownPrice = 250 + (extraStops * 25);
+            const finalTownPrice = Math.max(totalTownPrice, 275);
             
             return {
                 base: 250,
-                stopsCharge: extraStops * 50,
+                stopsCharge: extraStops * 25,
                 weightCharge: 0,
                 distanceCharge: 0,
                 waitingCharge: finalTownPrice - totalTownPrice, // Minimum adjustment
                 total: finalTownPrice,
                 model: 'Dedicated - Town (Multiple Drops)',
-                note: `Town multi-drop. Base ₹250 + ₹50/extra stop. Minimum ₹350 applied.`,
+                note: `Town multi-drop. Base ₹250 + ₹25/extra stop. Minimum ₹275 applied.`,
             };
         } else {
-            // 1) Base town trip (0-3 km / up to 30 min)
-            // 2) Extended town trip (3-6 km OR 30-60 min)
-            const isBaseTown = oneWayDistance <= 3 && expectedWaitingHours <= 0.5;
+            // 1) Base town trip (0-4 km / up to 30 min)
+            // 2) Extended town trip (4-6 km OR 30-60 min)
+            const isBaseTown = oneWayDistance <= 4 && expectedWaitingHours <= 0.5;
             
             if (isBaseTown) {
                 return {
@@ -182,7 +182,7 @@ function calculateDedicated(
                     waitingCharge: 0,
                     total: 250,
                     model: 'Dedicated - Base Town',
-                    note: `Up to 3 km / 30 min. Fixed ₹250.`,
+                    note: `Up to 4 km / 30 min. Fixed ₹250.`,
                 };
             } else {
                 const price = oneWayDistance <= 4.5 ? 300 : 350;
@@ -243,8 +243,8 @@ function calculateDedicated(
     // Base rules:
     // 1) Per km rate = ₹15 per km
     // 2) Base charge = ₹100
-    // 3) Minimum ticket = ₹800 for any long-range trip
-    // 4) For jobs expected to take more than 4 hours total, higher min = ₹1200
+    // 3) Total = Base + (km * 15)
+    // 4) For jobs > 4 hours, minimum is ₹1200
     const estimatedDriveHours = totalDistance / 30; // Assuming ~30 km/h average speed
     const estimatedTotalHours = estimatedDriveHours + expectedWaitingHours;
     
@@ -254,7 +254,7 @@ function calculateDedicated(
     let calculatedTotal = baseCharge + distanceCharge;
     
     // Apply Minimums
-    const minTicket = estimatedTotalHours > 4 ? 1200 : 800;
+    const minTicket = estimatedTotalHours > 4 ? 1200 : 0;
     let finalTotal = Math.max(calculatedTotal, minTicket);
     
     // Distribute any minimum ticket adjustment into waitingCharge (or just add as base adjustment)
