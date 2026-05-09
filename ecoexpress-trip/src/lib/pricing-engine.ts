@@ -123,8 +123,35 @@ function calculateDedicated(
     // Single drop base charge is ₹100
     const SINGLE_DROP_BASE = 100;
 
-    // DEDICATED SINGLE DROP pricing
-    if (isSingleShop) {
+    // --- WAITING JOBS (Vehicle parked mostly, e.g., at Dmart) ---
+    // Triggered if the expected wait time is significant (>= 3 hours) and distance is local/medium (<= 10km)
+    // Rule: First block up to 3 hours = ₹800. After 3 hours = ₹250/hr (ceiling).
+    if (expectedWaitingHours >= 3 && oneWayDistance <= 10) {
+        let price = 800;
+        let note = `Waiting Job Flat Rate: Up to 3 hours = ₹800.`;
+        let waitingCharge = 0;
+        
+        if (expectedWaitingHours > 3) {
+            const extraHours = Math.ceil(expectedWaitingHours - 3);
+            waitingCharge = extraHours * 250;
+            price += waitingCharge;
+            note += ` Extra ${extraHours} hour(s) × ₹250/hr.`;
+        }
+
+        return {
+            base: 800,
+            stopsCharge: 0,
+            weightCharge: 0,
+            distanceCharge: 0,
+            waitingCharge,
+            total: price,
+            model: 'Dedicated - Waiting Job',
+            note,
+        };
+    }
+
+    // DEDICATED SINGLE DROP pricing (Short Distances <= 10km)
+    if (isSingleShop && oneWayDistance <= 10) {
         const extraWaitHrs = Math.max(0, expectedWaitingHours - 1);
         const waitingCharge = extraWaitHrs * 200;
 
@@ -159,13 +186,13 @@ function calculateDedicated(
         }
     }
 
-    // MODEL 1: Local (<3 km from Kovilpatti center)
+    // MODEL 1: Local (<3 km from Kovilpatti center) - Multiple Drops
     if (pickupRadius < 3 && oneWayDistance < 3) {
         const extraStops = Math.max(0, stops - 1);
         const stopsCharge = extraStops * DED_LOCAL_EXTRA_STOP;
         const extraWaitHrs = Math.max(0, expectedWaitingHours - 1);
         const waitingCharge = extraWaitHrs * 200; // ₹200/hour after first free hour
-        const base = isSingleShop ? SINGLE_DROP_BASE : DED_LOCAL_BASE;
+        const base = DED_LOCAL_BASE;
         const total = base + stopsCharge + waitingCharge;
         return {
             base,
@@ -181,14 +208,14 @@ function calculateDedicated(
         };
     }
 
-    // MODEL 2: Medium (3-10 km)
+    // MODEL 2: Medium (3-10 km) - Multiple Drops
     if (oneWayDistance >= 3 && oneWayDistance <= 10) {
         const extraStops = Math.max(0, stops - 1);
         const stopsCharge = extraStops * DED_MED_EXTRA_STOP;
         const distanceCharge = totalDistance * DED_MED_PER_KM;
         const extraWaitHrs = Math.max(0, expectedWaitingHours - 1);
         const waitingCharge = extraWaitHrs * 200; // ₹200/hour after first free hour
-        const base = isSingleShop ? SINGLE_DROP_BASE : DED_MED_BASE;
+        const base = DED_MED_BASE;
         const total = base + stopsCharge + distanceCharge + waitingCharge;
         return {
             base,
@@ -203,23 +230,37 @@ function calculateDedicated(
         };
     }
 
-    // MODEL 3: Outside (>10 km)
-    const distanceCharge = totalDistance * DED_OUT_PER_KM;
-    const extraWaitHrs = Math.max(0, expectedWaitingHours - DED_OUT_FREE_WAIT_HRS);
-    const waitingCharge = extraWaitHrs * DED_OUT_WAIT_PER_HR;
-    const base = isSingleShop ? SINGLE_DROP_BASE : DED_OUT_BASE;
-    const total = base + distanceCharge + waitingCharge;
+    // --- LONG-RANGE TRIPS (>10 km) ---
+    // Base rules:
+    // 1) Per km rate = ₹15 per km
+    // 2) Base charge = ₹100
+    // 3) Minimum ticket = ₹800 for any long-range trip
+    // 4) For jobs expected to take more than 4 hours total, higher min = ₹1200
+    const estimatedDriveHours = totalDistance / 30; // Assuming ~30 km/h average speed
+    const estimatedTotalHours = estimatedDriveHours + expectedWaitingHours;
+    
+    const baseCharge = 100;
+    const perKmRate = 15;
+    const distanceCharge = totalDistance * perKmRate;
+    let calculatedTotal = baseCharge + distanceCharge;
+    
+    // Apply Minimums
+    const minTicket = estimatedTotalHours > 4 ? 1200 : 800;
+    let finalTotal = Math.max(calculatedTotal, minTicket);
+    
+    // Distribute any minimum ticket adjustment into waitingCharge (or just add as base adjustment)
+    const minAdjustment = Math.max(0, finalTotal - calculatedTotal);
+    const totalWaitingCharge = minAdjustment; 
 
     return {
-        base,
+        base: baseCharge,
         stopsCharge: 0,
         weightCharge: 0,
         distanceCharge,
-        waitingCharge,
-        total,
-        model: 'Dedicated - Outside',
-        note: `${distLabel} × ₹${DED_OUT_PER_KM}/km. ` +
-            (waitingCharge > 0 ? `Waiting: ${extraWaitHrs}h × ₹${DED_OUT_WAIT_PER_HR}.` : 'First 1 hour free.'),
+        waitingCharge: totalWaitingCharge,
+        total: finalTotal,
+        model: 'Dedicated - Long Range',
+        note: `${distLabel} × ₹${perKmRate}/km. Base ₹100. Minimum ₹${minTicket} applied (~${estimatedTotalHours.toFixed(1)}h total time).`,
     };
 }
 
