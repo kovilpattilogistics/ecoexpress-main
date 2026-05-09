@@ -171,7 +171,8 @@ function calculateDedicated(
         } else {
             // 1) Base town trip (0-4 km / up to 30 min)
             // 2) Extended town trip (4-6 km OR 30-60 min)
-            const isBaseTown = oneWayDistance <= 4 && expectedWaitingHours <= 0.5;
+            // Treating <= 1 hour as "no extra waiting" since 1h is the default/free time
+            const isBaseTown = oneWayDistance <= 4 && expectedWaitingHours <= 1;
             
             if (isBaseTown) {
                 return {
@@ -182,7 +183,7 @@ function calculateDedicated(
                     waitingCharge: 0,
                     total: 250,
                     model: 'Dedicated - Base Town',
-                    note: `Up to 4 km / 30 min. Fixed ₹250.`,
+                    note: `Up to 4 km. Fixed ₹250.`,
                 };
             } else {
                 const price = oneWayDistance <= 4.5 ? 300 : 350;
