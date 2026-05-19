@@ -563,7 +563,7 @@ export function DriverTripPage({ onExit }: { onExit: () => void }) {
     return (
         <div className="flex flex-col h-full">
             {/* Header — matches website style */}
-            <div className="relative bg-gradient-to-br from-green-700 via-green-600 to-emerald-500 px-5 pt-5 pb-5 shrink-0">
+            <div className="relative bg-gradient-to-br from-green-700 via-green-600 to-emerald-500 px-5 pt-5 pb-5 shrink-0 print:hidden">
                 <div className="flex items-center justify-between">
                     <button
                         onClick={onExit}
