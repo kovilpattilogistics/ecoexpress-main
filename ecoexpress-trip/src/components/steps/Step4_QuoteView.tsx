@@ -2,11 +2,12 @@
 
 import React, { useState, useMemo } from 'react';
 import { QuoteResult, PriceBreakdown } from '@/lib/pricing-engine';
-import { MessageCircle, Phone, RotateCcw, ChevronDown, ChevronUp, ChevronLeft, Globe, MapPin, Clock, Package } from 'lucide-react';
+import { MessageCircle, Phone, RotateCcw, ChevronDown, ChevronUp, ChevronLeft, Globe, MapPin, Printer } from 'lucide-react';
 import { useWizard } from '@/components/wizard/WizardManager';
 import { clsx } from 'clsx';
 import { TRANSLATIONS } from '@/lib/translations';
 import RouteMap from '@/components/ui/RouteMap';
+import logoSrc from '@/assets/logo.png';
 
 interface Props {
     quote: QuoteResult;
@@ -89,9 +90,9 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
     };
 
     return (
-        <div className="flex flex-col h-full bg-gray-50">
+        <div className="flex flex-col h-full bg-gray-50 print:bg-white print:h-auto">
             {/* Header */}
-            <div className="bg-white px-5 py-4 shadow-sm z-10 relative">
+            <div className="bg-white px-5 py-4 shadow-sm z-10 relative print:hidden">
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-400" />
                 <div className="flex items-center justify-between">
                     <button onClick={goToPreviousStep} className="p-2 -ml-2 text-gray-400 hover:text-gray-600 rounded-xl transition-colors">
@@ -109,17 +110,51 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
             </div>
 
             {/* Full progress */}
-            <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-400" />
+            <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-400 print:hidden" />
 
-            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4 pb-32">
+            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4 pb-32 print:overflow-visible print:p-0 print:block">
+                
+                {/* ── PRINT ONLY INVOICE HEADER ── */}
+                <div className="hidden print:block mb-8">
+                    <div className="flex items-center justify-between border-b-4 border-green-600 pb-4 mb-4 mt-4">
+                        <div className="flex items-center gap-4">
+                            <img src={logoSrc} alt="EcoExpress Logistics" className="w-16 h-16 object-contain" />
+                            <div>
+                                <h1 className="text-2xl font-black text-green-800 tracking-tight">EcoExpress Logistics</h1>
+                                <p className="text-sm text-gray-600 font-medium italic">Clean Water. Fast Delivery. Eco Future.</p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <h2 className="text-3xl font-black text-green-700 uppercase tracking-widest m-0">TRIP QUOTE</h2>
+                            <p className="text-sm font-bold text-gray-600 mt-1">Date: {new Date().toLocaleDateString('en-IN')}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 className="text-xs font-bold text-green-700 uppercase tracking-widest mb-2 border-b border-gray-200 inline-block pb-1">Company Details</h3>
+                            <p className="text-sm text-gray-800 font-medium leading-relaxed">
+                                36/A, Valluvar Nagar,<br/>
+                                Kadalaiyur Road, Kovilpatti – 628 501<br/>
+                                Tamil Nadu, India<br/>
+                                📞 +91 63810 65877
+                            </p>
+                        </div>
+                        <div className="text-right">
+                            <h3 className="text-xs font-bold text-green-700 uppercase tracking-widest mb-2 border-b border-gray-200 inline-block pb-1">Service Requested</h3>
+                            <p className="text-lg font-black text-gray-800">{t[svcMeta.nameKey]}</p>
+                            <p className="text-sm text-gray-600 font-medium">{data.weight} kg Cargo • {data.expectedWaitingHours}h Waiting</p>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Route Map */}
                 {routeWaypoints.length >= 2 && (
-                    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-                        <div className="h-[160px] w-full">
+                    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm print:border-2 print:border-gray-200 print:shadow-none print:mb-8 print:rounded-xl">
+                        <div className="h-[160px] w-full print:h-[400px]">
                             <RouteMap waypoints={routeWaypoints} />
                         </div>
-                        <div className="px-4 py-3 flex items-center justify-between border-t border-gray-100">
+                        <div className="px-4 py-3 flex items-center justify-between border-t border-gray-100 print:hidden">
                             <div className="flex items-center gap-2 min-w-0">
                                 <span className="w-2.5 h-2.5 rounded-full bg-green-500 shrink-0" />
                                 <span className="text-xs font-medium text-gray-600 truncate">{data.pickupLocation.split(',')[0]}</span>
@@ -131,50 +166,52 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
                             </div>
                             <span className="text-xs font-black text-green-700 bg-green-50 px-2.5 py-1 rounded-lg shrink-0 ml-2">{quote.distance} km</span>
                         </div>
+                        <div className="hidden print:flex px-6 py-4 bg-gray-50 items-center justify-between border-t border-gray-200">
+                            <span className="text-sm font-bold text-gray-700 uppercase tracking-widest">Route Verification Map</span>
+                            <span className="text-sm font-black text-green-700">{quote.distance} Total Km</span>
+                        </div>
                     </div>
                 )}
 
                 {/* Price Card */}
-                <div className={clsx('bg-white rounded-2xl border-2 shadow-md overflow-hidden', svcMeta.border)}>
+                <div className={clsx('bg-white rounded-2xl border-2 shadow-md overflow-hidden print:border-2 print:border-gray-200 print:shadow-none print:rounded-xl', svcMeta.border)}>
                     {/* Price header */}
-                    <div className={clsx('px-5 py-5 bg-gradient-to-r text-white', svcMeta.priceBg)}>
+                    <div className={clsx('px-5 py-5 bg-gradient-to-r text-white print:!bg-none print:!bg-gray-100 print:!text-gray-900 print:border-b print:border-gray-200', svcMeta.priceBg)}>
                         <div className="flex items-center gap-2 mb-2">
-                            <span className="text-2xl">{svcMeta.emoji}</span>
-                            <span className="font-bold text-sm opacity-90">{t[svcMeta.nameKey]}</span>
+                            <span className="text-2xl print:hidden">{svcMeta.emoji}</span>
+                            <span className="font-bold text-sm opacity-90 print:opacity-100 print:text-gray-600 print:uppercase print:tracking-wider">{t[svcMeta.nameKey]} Estimate</span>
                         </div>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-base opacity-80">₹</span>
-                            <span className="text-5xl font-black">{selectedBreakdown.total.toLocaleString('en-IN')}</span>
+                            <span className="text-base opacity-80 print:opacity-100 print:text-gray-600">₹</span>
+                            <span className="text-5xl font-black print:text-gray-900">{selectedBreakdown.total.toLocaleString('en-IN')}</span>
                         </div>
-                        <p className="text-xs opacity-75 mt-1 font-medium">{selectedBreakdown.note}</p>
+                        <p className="text-xs opacity-75 mt-1 font-medium print:opacity-100 print:text-gray-500">{selectedBreakdown.note}</p>
                     </div>
 
                     {/* Breakdown toggle */}
                     <button
                         onClick={() => setShowBreakdown(!showBreakdown)}
-                        className="w-full flex items-center justify-between px-5 py-3 border-b border-gray-100 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors"
+                        className="w-full flex items-center justify-between px-5 py-3 border-b border-gray-100 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors print:hidden"
                     >
                         {showBreakdown ? t.hideBreakdown : t.viewBreakdown}
                         {showBreakdown ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
 
-                    {showBreakdown && (
-                        <div className="px-5 py-4">
+                    <div className={clsx("px-5 py-4", !showBreakdown && "hidden print:block")}>
                             <BreakdownRow label={t.baseCharge} value={selectedBreakdown.base} />
                             <BreakdownRow label={t.distanceCharge} value={selectedBreakdown.distanceCharge} />
                             <BreakdownRow label={t.stopsCharge} value={selectedBreakdown.stopsCharge} />
                             <BreakdownRow label={t.weightCharge} value={selectedBreakdown.weightCharge} />
                             <BreakdownRow label={t.waitingCharge} value={selectedBreakdown.waitingCharge} />
                             <div className="flex justify-between items-center pt-3 mt-2 border-t border-gray-200">
-                                <span className="font-black text-gray-800">{t.total}</span>
+                                <span className="font-black text-gray-800 uppercase text-xs tracking-widest">{t.total}</span>
                                 <span className="font-black text-lg text-gray-900">₹ {selectedBreakdown.total.toLocaleString('en-IN')}</span>
                             </div>
                         </div>
-                    )}
                 </div>
 
                 {/* Trip Summary */}
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4">
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm px-5 py-4 print:hidden">
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">{t.tripDetails}</p>
                     <div className="space-y-3">
                         <div className="flex items-start gap-3">
@@ -228,14 +265,23 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
             </div>
 
             {/* Sticky Footer Actions */}
-            <div className="absolute bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-sm border-t border-gray-100 space-y-3">
-                <button
-                    onClick={buildWhatsApp}
-                    className="w-full py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-black text-base rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-green-200/50 active:scale-[0.97] transition-all"
-                >
-                    <MessageCircle className="w-5 h-5" />
-                    {t.bookWhatsApp}
-                </button>
+            <div className="absolute bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-sm border-t border-gray-100 space-y-3 print:hidden">
+                <div className="flex gap-3">
+                    <button
+                        onClick={buildWhatsApp}
+                        className="flex-[2] py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-black text-base rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-green-200/50 active:scale-[0.97] transition-all"
+                    >
+                        <MessageCircle className="w-5 h-5" />
+                        {t.bookWhatsApp}
+                    </button>
+                    <button
+                        onClick={() => window.print()}
+                        className="flex-1 py-4 bg-white border-2 border-gray-200 text-gray-700 font-black text-base rounded-2xl flex items-center justify-center gap-2 active:scale-[0.97] transition-all"
+                    >
+                        <Printer className="w-5 h-5" />
+                        Print
+                    </button>
+                </div>
                 <div className="flex gap-3">
                     <a
                         href="tel:+916381065877"
