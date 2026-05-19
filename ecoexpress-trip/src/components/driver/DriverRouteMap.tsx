@@ -69,7 +69,16 @@ export default function DriverRouteMap({ waypoints, height = 220 }: Props) {
             setTimeout(() => map.invalidateSize(), delay)
         );
 
+        const handlePrint = () => {
+            map.invalidateSize();
+        };
+        window.addEventListener('beforeprint', handlePrint);
+        const mql = window.matchMedia('print');
+        mql.addEventListener('change', handlePrint);
+
         return () => {
+            window.removeEventListener('beforeprint', handlePrint);
+            mql.removeEventListener('change', handlePrint);
             map.remove();
             mapRef.current = null;
             layersRef.current = null;

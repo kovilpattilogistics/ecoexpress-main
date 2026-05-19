@@ -88,6 +88,19 @@ export default function RouteMap({ waypoints }: RouteMapProps) {
             setTimeout(() => {
                 mapInstance.current?.invalidateSize();
             }, 100);
+
+            const handlePrint = () => {
+                mapInstance.current?.invalidateSize();
+            };
+            window.addEventListener('beforeprint', handlePrint);
+            const mql = window.matchMedia('print');
+            mql.addEventListener('change', handlePrint);
+            
+            // store handlers on the DOM element for cleanup (hacky but works since useEffect dependencies are tricky here)
+            (mapRef.current as any)._cleanupPrint = () => {
+                window.removeEventListener('beforeprint', handlePrint);
+                mql.removeEventListener('change', handlePrint);
+            };
         }
 
         const map = mapInstance.current;
@@ -134,6 +147,9 @@ export default function RouteMap({ waypoints }: RouteMapProps) {
     // Cleanup on unmount
     useEffect(() => {
         return () => {
+            if (mapRef.current && (mapRef.current as any)._cleanupPrint) {
+                (mapRef.current as any)._cleanupPrint();
+            }
             if (mapInstance.current) {
                 mapInstance.current.remove();
                 mapInstance.current = null;
