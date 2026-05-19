@@ -112,7 +112,7 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
             {/* Full progress */}
             <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-400 print:hidden" />
 
-            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4 pb-32 print:overflow-visible print:p-0 print:block">
+            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4 pb-32 print:overflow-visible print:!p-10 print:block print:bg-white print:border print:border-gray-300 print:m-8 print:rounded-2xl">
                 
                 {/* ── PRINT ONLY INVOICE HEADER ── */}
                 <div className="hidden print:block mb-8">

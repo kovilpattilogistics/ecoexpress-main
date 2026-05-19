@@ -289,7 +289,7 @@ ${persisted.stops.length > 0 ? `\n🔴 *Stops:*\n${stopLines}\n` : ''}
                 <p className="text-white/70 text-xs mt-1">Here's your fare summary</p>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4 -mt-4 print:mt-0 print:p-0 print:overflow-visible print:block">
+            <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4 -mt-4 print:!mt-0 print:overflow-visible print:!p-10 print:block print:bg-white print:border print:border-gray-300 print:m-8 print:rounded-2xl">
                 
                 {/* ── PRINT ONLY INVOICE HEADER ── */}
                 <div className="hidden print:block mb-8">
