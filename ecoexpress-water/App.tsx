@@ -24,7 +24,14 @@ import logo from './assets/logo-final.png';
 const App: React.FC = () => {
   // Use pathname for top-level routing (Admin vs Customer vs Driver)
   const [pathname, setPathname] = useState(() => {
-    const path = window.location.pathname.toLowerCase();
+    let path = window.location.pathname.toLowerCase();
+    
+    // Strip Vite base URL prefix if present (e.g. "/ecoexpress-water/")
+    const basePrefix = (import.meta.env.BASE_URL || '/').toLowerCase();
+    if (basePrefix !== '/' && path.startsWith(basePrefix)) {
+      path = path.substring(basePrefix.length - 1); // retains leading slash
+    }
+
     const cleanPath = path.startsWith(BASE_PATH) ? path.substring(BASE_PATH.length) : path;
     return cleanPath || '/';
   });
@@ -51,7 +58,14 @@ const App: React.FC = () => {
   useEffect(() => {
     // Handler for SPA navigation
     const handlePopState = () => {
-      const path = window.location.pathname.toLowerCase();
+      let path = window.location.pathname.toLowerCase();
+      
+      // Strip Vite base URL prefix if present (e.g. "/ecoexpress-water/")
+      const basePrefix = (import.meta.env.BASE_URL || '/').toLowerCase();
+      if (basePrefix !== '/' && path.startsWith(basePrefix)) {
+        path = path.substring(basePrefix.length - 1); // retains leading slash
+      }
+
       setPathname(path.startsWith(BASE_PATH) ? path.substring(BASE_PATH.length) : path);
       setHash(window.location.hash);
     };

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Package, Users, BarChart3, TrendingUp, AlertTriangle, ShoppingCart, ClipboardList, Truck } from 'lucide-react';
-import { Card, StatusBadge } from './SharedComponents';
+import {
+  Users, Package, ClipboardList, BarChart3, ShoppingCart, Truck,
+  AlertTriangle, FileText, TrendingDown, CircleDollarSign,
+} from 'lucide-react';
+import { InvoiceGenerator } from './InvoiceGenerator';
 import { subscribeInventory, subscribeOrders, subscribeCustomers, calculateCases } from '../services/firestoreService';
 import { InventoryItem, Order, Customer, ProductType, CanState } from '../types';
 import { LOW_STOCK_THRESHOLD_CANS, LOW_STOCK_THRESHOLD_BOTTLES } from '../constants';
@@ -13,134 +16,170 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [showInvoice, setShowInvoice] = useState(false);
 
   useEffect(() => {
-    const unsubInv = subscribeInventory(setInventory);
-    const unsubOrd = subscribeOrders(setOrders);
+    const unsubInv  = subscribeInventory(setInventory);
+    const unsubOrd  = subscribeOrders(setOrders);
     const unsubCust = subscribeCustomers(setCustomers);
-
-    return () => {
-      unsubInv();
-      unsubOrd();
-      unsubCust();
-    };
+    return () => { unsubInv(); unsubOrd(); unsubCust(); };
   }, []);
 
-  // Calc Logic
-  const pendingAmount = customers.reduce((acc, curr) => acc + (curr.pendingAmount || 0), 0);
+  const pendingAmount  = customers.reduce((acc, c) => acc + (c.pendingAmount || 0), 0);
   const upcomingOrders = orders.filter(o => !o.status.includes('Delivered') && !o.status.includes('picked')).slice(0, 5);
 
   const lowStockItems = inventory.filter(item => {
-    if (item.type === ProductType.CAN_20L && item.canState === CanState.FILLED) {
+    if (item.type === ProductType.CAN_20L && item.canState === CanState.FILLED)
       return item.quantity < LOW_STOCK_THRESHOLD_CANS;
-    }
-    if (item.type !== ProductType.CAN_20L) {
+    if (item.type !== ProductType.CAN_20L)
       return item.quantity < LOW_STOCK_THRESHOLD_BOTTLES;
-    }
     return false;
   });
 
-  const Tile = ({ title, icon: Icon, onClick, colorClass }: any) => (
-    <div
-      onClick={onClick}
-      className={`p-6 rounded-xl shadow-md cursor-pointer transform transition hover:scale-105 ${colorClass} text-white flex flex-col items-center justify-center gap-2`}
-    >
-      <Icon size={32} />
-      <span className="font-bold text-lg">{title}</span>
-    </div>
-  );
+  // ─── Nav items ──────────────────────────────────────────────────────────────
+  const navItems = [
+    { label: 'Customers',      icon: Users,           page: 'customers' },
+    { label: 'Orders',         icon: ClipboardList,   page: 'orders' },
+    { label: 'Inventory',      icon: Package,         page: 'inventory' },
+    { label: 'Revenue',        icon: BarChart3,       page: 'revenue' },
+    { label: 'Create Order',   icon: ShoppingCart,    page: 'create-order' },
+    { label: 'Live Delivery',  icon: Truck,           page: 'delivery-status' },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Tile title="Dashboard" icon={TrendingUp} colorClass="bg-blue-500" onClick={() => { }} />
-        <Tile title="Customers" icon={Users} colorClass="bg-green-500" onClick={() => onNavigate('customers')} />
-        <Tile title="Orders" icon={ClipboardList} colorClass="bg-indigo-500" onClick={() => onNavigate('orders')} />
-        <Tile title="Inventory" icon={Package} colorClass="bg-orange-500" onClick={() => onNavigate('inventory')} />
-        <Tile title="Revenue" icon={BarChart3} colorClass="bg-purple-500" onClick={() => onNavigate('revenue')} />
-        <Tile title="Create Order" icon={ShoppingCart} colorClass="bg-teal-500" onClick={() => onNavigate('create-order')} />
-        <Tile title="Live Delivery" icon={Truck} colorClass="bg-blue-600" onClick={() => onNavigate('delivery-status')} />
+    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+
+      {/* ── Top Nav Row ─────────────────────────────────────────────────────── */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+        {navItems.map(({ label, icon: Icon, page }) => (
+          <button
+            key={page}
+            onClick={() => onNavigate(page)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '9px 16px', borderRadius: 9,
+              border: '1px solid #e2e8f0', background: '#fff',
+              color: '#374151', fontWeight: 600, fontSize: 13,
+              cursor: 'pointer', transition: 'all 0.15s',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#f0fdf4'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#1a5c2a'; (e.currentTarget as HTMLButtonElement).style.color = '#1a5c2a'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#fff'; (e.currentTarget as HTMLButtonElement).style.borderColor = '#e2e8f0'; (e.currentTarget as HTMLButtonElement).style.color = '#374151'; }}
+          >
+            <Icon size={16} />
+            {label}
+          </button>
+        ))}
+
+        {/* Invoice Button — stands out */}
+        <button
+          onClick={() => setShowInvoice(true)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '9px 18px', borderRadius: 9,
+            border: 'none', background: '#1a5c2a',
+            color: '#fff', fontWeight: 700, fontSize: 13,
+            cursor: 'pointer', marginLeft: 'auto',
+            boxShadow: '0 2px 8px rgba(26,92,42,0.25)',
+          }}
+        >
+          <FileText size={16} />
+          Generate Invoice
+        </button>
       </div>
 
-      {/* Low Stock Alert */}
+      {/* ── Low Stock Alert ─────────────────────────────────────────────────── */}
       {lowStockItems.length > 0 && (
         <div
           onClick={() => onNavigate('inventory')}
-          className="bg-red-50 border-l-4 border-red-500 p-4 cursor-pointer hover:bg-red-100 transition"
+          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 10, marginBottom: 20, cursor: 'pointer' }}
         >
-          <div className="flex items-center">
-            <AlertTriangle className="text-red-500 mr-2" />
-            <p className="font-bold text-red-700">Low Stock Alert!</p>
+          <AlertTriangle size={16} color="#ea580c" style={{ flexShrink: 0 }} />
+          <div>
+            <span style={{ fontWeight: 700, color: '#c2410c', fontSize: 13 }}>Low Stock: </span>
+            <span style={{ color: '#9a3412', fontSize: 13 }}>
+              {lowStockItems.map(i => `${i.type} (${i.canState || 'Cases'}): ${i.quantity}`).join(' • ')}
+            </span>
           </div>
-          <p className="text-sm text-red-600 mt-1">
-            {lowStockItems.map(i => `${i.type} (${i.canState || 'Cases'}): ${i.quantity}`).join(', ')} - Restock needed.
-          </p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Upcoming Orders */}
-        <Card title="Upcoming Orders" className="h-full">
-          {upcomingOrders.length === 0 ? (
-            <p className="text-slate-500 text-sm">No pending orders.</p>
-          ) : (
-            <div className="space-y-3">
-              {upcomingOrders.map(order => (
-                <div key={order.id} className="flex justify-between items-start border-b border-slate-100 pb-2 last:border-0" onClick={() => onNavigate('orders')}>
-                  <div>
-                    <p className="font-semibold text-sm">{order.customerName}</p>
-                    <p className="text-xs text-slate-500">{order.deliveryDate} @ {order.deliveryTime}</p>
-                    <p className="text-xs text-slate-600">
-                      {order.items.map(i => `${i.productType} x${i.quantity}`).join(', ')}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-sm">₹{order.totalAmount}</p>
-                    <StatusBadge status={order.status} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-
-        {/* Pending Amounts */}
-        <Card title="Pending Payments" className="h-full">
-          <div className="mb-4">
-            <p className="text-3xl font-bold text-slate-800">₹{pendingAmount}</p>
-            <p className="text-sm text-slate-500">Total Outstanding</p>
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase mb-2">Top Debtors</h4>
-            {customers
-              .filter(c => c.pendingAmount > 0)
-              .sort((a, b) => b.pendingAmount - a.pendingAmount)
-              .slice(0, 3)
-              .map(c => (
-                <div key={c.id} className="flex justify-between items-center py-2 border-b border-slate-100 last:border-0">
-                  <span className="text-sm font-medium">{c.name}</span>
-                  <span className="text-sm font-bold text-red-500">₹{c.pendingAmount}</span>
-                </div>
-              ))
-            }
-          </div>
-        </Card>
+      {/* ── Key Stats ───────────────────────────────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 24 }}>
+        <StatCard icon={<CircleDollarSign size={18} color="#dc2626" />} label="Pending Payments" value={`₹${pendingAmount.toLocaleString('en-IN')}`} color="#fef2f2" border="#fecaca" textColor="#dc2626" onClick={() => onNavigate('customers')} />
+        <StatCard icon={<ClipboardList size={18} color="#2563eb" />} label="Pending Orders" value={String(upcomingOrders.length)} color="#eff6ff" border="#bfdbfe" textColor="#2563eb" onClick={() => onNavigate('orders')} />
+        <StatCard icon={<Users size={18} color="#059669" />} label="Total Customers" value={String(customers.length)} color="#f0fdf4" border="#bbf7d0" textColor="#059669" onClick={() => onNavigate('customers')} />
+        <StatCard icon={<TrendingDown size={18} color="#7c3aed" />} label="Low Stock Items" value={String(lowStockItems.length)} color="#faf5ff" border="#e9d5ff" textColor="#7c3aed" onClick={() => onNavigate('inventory')} />
       </div>
 
-      {/* Stock Overview Widget */}
-      <Card title="Stock Overview">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {inventory.map((item, idx) => (
-            <div key={idx} className={`p-3 rounded-lg border ${item.quantity < (item.type === ProductType.CAN_20L ? LOW_STOCK_THRESHOLD_CANS : LOW_STOCK_THRESHOLD_BOTTLES) ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'}`}>
-              <p className="text-xs text-slate-500">{item.type}</p>
-              {item.canState && <p className="text-[10px] uppercase font-bold text-slate-400">{item.canState}</p>}
-              <p className={`text-xl font-bold ${item.quantity < 5 ? 'text-red-600' : 'text-slate-800'}`}>
-                {item.type.includes('Bottle') ? calculateCases(item.type, item.quantity).display : `${item.quantity} Cans`}
-              </p>
-            </div>
-          ))}
+      {/* ── Stock Overview (compact) ─────────────────────────────────────────── */}
+      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 20px', marginBottom: 20 }}>
+        <div style={{ fontWeight: 700, fontSize: 13, color: '#374151', marginBottom: 12 }}>Stock Overview</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+          {inventory.length === 0
+            ? <span style={{ color: '#9ca3af', fontSize: 13 }}>Loading stock…</span>
+            : inventory.map((item, idx) => {
+                const isLow = item.type === ProductType.CAN_20L
+                  ? item.quantity < LOW_STOCK_THRESHOLD_CANS
+                  : item.quantity < LOW_STOCK_THRESHOLD_BOTTLES;
+                const display = item.type.includes('Bottle') ? calculateCases(item.type, item.quantity).display : `${item.quantity} Cans`;
+                return (
+                  <div key={idx} style={{ padding: '7px 14px', borderRadius: 8, background: isLow ? '#fef2f2' : '#f8fafc', border: `1px solid ${isLow ? '#fecaca' : '#e2e8f0'}`, cursor: 'pointer' }} onClick={() => onNavigate('inventory')}>
+                    <div style={{ fontSize: 11, color: '#6b7280' }}>{item.type}{item.canState ? ` (${item.canState})` : ''}</div>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: isLow ? '#dc2626' : '#1a1a1a' }}>{display}</div>
+                  </div>
+                );
+              })
+          }
         </div>
-      </Card>
+      </div>
+
+      {/* ── Upcoming Orders (compact table) ─────────────────────────────────── */}
+      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: '#374151' }}>Upcoming Orders</div>
+          <button onClick={() => onNavigate('orders')} style={{ fontSize: 12, color: '#1a5c2a', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>View all →</button>
+        </div>
+        {upcomingOrders.length === 0
+          ? <p style={{ color: '#9ca3af', fontSize: 13 }}>No pending orders.</p>
+          : <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
+                  {['Customer', 'Date', 'Items', 'Amount', 'Status'].map(h => (
+                    <th key={h} style={{ padding: '6px 10px', textAlign: 'left', color: '#6b7280', fontWeight: 600, fontSize: 12 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {upcomingOrders.map(order => (
+                  <tr key={order.id} style={{ borderBottom: '1px solid #f8f8f8', cursor: 'pointer' }} onClick={() => onNavigate('orders')}>
+                    <td style={{ padding: '8px 10px', fontWeight: 600 }}>{order.customerName}</td>
+                    <td style={{ padding: '8px 10px', color: '#6b7280' }}>{order.deliveryDate}</td>
+                    <td style={{ padding: '8px 10px', color: '#6b7280', fontSize: 12 }}>{order.items.map(i => `${i.productType} ×${i.quantity}`).join(', ')}</td>
+                    <td style={{ padding: '8px 10px', fontWeight: 700 }}>₹{order.totalAmount}</td>
+                    <td style={{ padding: '8px 10px' }}>
+                      <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 20, background: '#f0fdf4', color: '#059669', fontWeight: 600 }}>{order.status}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+        }
+      </div>
+
+      {/* Invoice Modal */}
+      {showInvoice && <InvoiceGenerator onClose={() => setShowInvoice(false)} />}
     </div>
   );
 };
+
+// ── Stat Card helper ──────────────────────────────────────────────────────────
+const StatCard = ({ icon, label, value, color, border, textColor, onClick }: any) => (
+  <div onClick={onClick} style={{ background: color, border: `1px solid ${border}`, borderRadius: 12, padding: '14px 16px', cursor: 'pointer', transition: 'transform 0.1s' }}
+    onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.transform = 'scale(1.02)'}
+    onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.transform = 'scale(1)'}
+  >
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>{icon}<span style={{ fontSize: 12, color: '#6b7280' }}>{label}</span></div>
+    <div style={{ fontSize: 22, fontWeight: 900, color: textColor }}>{value}</div>
+  </div>
+);
