@@ -1,12 +1,16 @@
 'use client';
 
 import React from 'react';
-import { ArrowRight, Truck, Globe, CheckCircle2, ShieldCheck, Clock } from 'lucide-react';
+import { ArrowRight, Truck, Globe, CheckCircle2, ShieldCheck, Clock, Navigation } from 'lucide-react';
 import { useWizard } from '@/components/wizard/WizardManager';
 import { TRANSLATIONS } from '@/lib/translations';
 import logoSrc from '@/assets/logo.png';
 
-export function Step0Landing() {
+interface Props {
+    onDriverMode?: () => void;
+}
+
+export function Step0Landing({ onDriverMode }: Props) {
     const { goToNextStep, lang, toggleLang } = useWizard();
     const t = TRANSLATIONS[lang];
 
@@ -100,7 +104,17 @@ export function Step0Landing() {
             </div>
 
             {/* Sticky CTA */}
-            <div className="px-5 pb-6 pt-3 bg-white border-t border-gray-100 shrink-0">
+            <div className="px-5 pb-6 pt-3 bg-white border-t border-gray-100 shrink-0 space-y-3">
+                {/* Driver mode — subtle button */}
+                {onDriverMode && (
+                    <button
+                        onClick={onDriverMode}
+                        className="w-full py-2.5 border border-slate-300 text-slate-500 hover:border-slate-400 hover:text-slate-700 font-bold text-sm rounded-xl flex items-center justify-center gap-2 active:scale-[0.97] transition-all"
+                    >
+                        <Navigation className="w-3.5 h-3.5" />
+                        Start a Trip
+                    </button>
+                )}
                 <button
                     onClick={goToNextStep}
                     className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-black text-base rounded-2xl shadow-lg shadow-green-200/50 flex items-center justify-center gap-2 active:scale-[0.97] transition-all"
