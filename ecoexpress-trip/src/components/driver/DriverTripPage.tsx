@@ -275,8 +275,10 @@ ${persisted.stops.length > 0 ? `\n🔴 *Stops:*\n${stopLines}\n` : ''}
 
 📝 ${fare.note}`;
 
-        window.open(`https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(msg)}`);
+        window.location.assign(`https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(msg)}`);
     };
+
+    const [customerName, setCustomerName] = useState('');
 
     return (
         <div className="flex flex-col h-full bg-gray-50 print:bg-white print:h-auto">
@@ -318,8 +320,9 @@ ${persisted.stops.length > 0 ? `\n🔴 *Stops:*\n${stopLines}\n` : ''}
                             </p>
                         </div>
                         <div className="text-right">
-                            <h3 className="text-xs font-bold text-green-700 uppercase tracking-widest mb-2 border-b border-gray-200 inline-block pb-1">Trip Details</h3>
-                            <p className="text-lg font-black text-gray-800">{fare.category}</p>
+                            <h3 className="text-xs font-bold text-green-700 uppercase tracking-widest mb-2 border-b border-gray-200 inline-block pb-1">Customer / Trip Details</h3>
+                            {customerName && <p className="text-lg font-black text-gray-800 mb-1">{customerName}</p>}
+                            <p className="text-sm font-bold text-gray-700">{fare.category}</p>
                             <p className="text-sm text-gray-600 font-medium">{fare.distanceKm} km • {formatDuration(totalSeconds)}</p>
                         </div>
                     </div>
@@ -413,21 +416,30 @@ ${persisted.stops.length > 0 ? `\n🔴 *Stops:*\n${stopLines}\n` : ''}
 
             {/* Footer actions */}
             <div className="px-5 pb-6 pt-3 space-y-3 shrink-0 bg-white border-t border-gray-100 print:hidden">
-                <div className="flex gap-3">
-                    <button
-                        onClick={sendToAccounts}
-                        className="flex-[2] py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-black text-base rounded-2xl shadow-lg shadow-green-200/50 flex items-center justify-center gap-2 active:scale-[0.97] transition-all"
-                    >
-                        <Send className="w-5 h-5" />
-                        Send to Accounts
-                    </button>
-                    <button
-                        onClick={() => window.print()}
-                        className="flex-1 py-4 bg-white border-2 border-gray-200 text-gray-700 font-black text-base rounded-2xl flex items-center justify-center gap-2 active:scale-[0.97] transition-all"
-                    >
-                        <Printer className="w-5 h-5" />
-                        Print
-                    </button>
+                <div className="flex flex-col gap-3">
+                    <input
+                        type="text"
+                        placeholder="Customer Name (Optional for Print)"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                    <div className="flex gap-3">
+                        <button
+                            onClick={sendToAccounts}
+                            className="flex-[2] py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-black text-base rounded-2xl shadow-lg shadow-green-200/50 flex items-center justify-center gap-2 active:scale-[0.97] transition-all"
+                        >
+                            <Send className="w-5 h-5" />
+                            Send to Accounts
+                        </button>
+                        <button
+                            onClick={() => window.print()}
+                            className="flex-1 py-4 bg-white border-2 border-gray-200 text-gray-700 font-black text-base rounded-2xl flex items-center justify-center gap-2 active:scale-[0.97] transition-all"
+                        >
+                            <Printer className="w-5 h-5" />
+                            Print
+                        </button>
+                    </div>
                 </div>
                 <button
                     onClick={onStartNew}
@@ -495,7 +507,7 @@ export function DriverTripPage({ onExit }: { onExit: () => void }) {
 
         // WhatsApp notification
         const msg = `🚀 *EcoExpress Trip Started*\n\n🕐 Time: ${fmt(now)}\n📍 GPS: ${fmtCoord(pos.coords.latitude)}, ${fmtCoord(pos.coords.longitude)}\n\nDriver has started a new trip.`;
-        window.open(`https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(msg)}`);
+        window.location.assign(`https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(msg)}`);
     }, []);
 
     const handleAddStop = useCallback(async () => {
@@ -547,7 +559,13 @@ export function DriverTripPage({ onExit }: { onExit: () => void }) {
             setPersisted(updated);
 
             const dur = Math.ceil((endTime.getTime() - new Date(persisted.startTime).getTime()) / 60000);
-            setFare(calculateDriverFare(roadDist, dur, persisted.stops.length + 1));
+            const calculatedFare = calculateDriverFare(roadDist, dur, persisted.stops.length + 1);
+            setFare(calculatedFare);
+
+            // WhatsApp notification for End Trip
+            const msg = `🏁 *EcoExpress Trip Ended*\n\n🕐 Time: ${fmt(endTime)}\n📍 GPS: ${fmtCoord(pos.coords.latitude)}, ${fmtCoord(pos.coords.longitude)}\n📏 Distance: ${roadDist} km\n⏱ Duration: ${formatDuration(dur * 60)}\n\nDriver has ended the trip.`;
+            window.location.assign(`https://wa.me/${ADMIN_PHONE}?text=${encodeURIComponent(msg)}`);
+
         } catch (e: unknown) {
             setActionError(e instanceof Error ? e.message : 'Could not get GPS. Try again.');
         } finally { setEndingTrip(false); }

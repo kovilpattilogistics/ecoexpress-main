@@ -86,8 +86,10 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
 
 ✅ ${lang === 'en' ? 'Please confirm my booking. Thank you!' : 'என் முன்பதிவை உறுதிப்படுத்தவும். நன்றி!'}`;
 
-        window.open(`https://wa.me/916381065877?text=${encodeURIComponent(msg)}`);
+        window.location.assign(`https://wa.me/916381065877?text=${encodeURIComponent(msg)}`);
     };
+
+    const [customerName, setCustomerName] = useState('');
 
     return (
         <div className="flex flex-col h-full bg-gray-50 print:bg-white print:h-auto">
@@ -141,7 +143,9 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
                             </p>
                         </div>
                         <div className="text-right">
-                            <h3 className="text-xs font-bold text-green-700 uppercase tracking-widest mb-2 border-b border-gray-200 inline-block pb-1">Service Requested</h3>
+                            <h3 className="text-xs font-bold text-green-700 uppercase tracking-widest mb-2 border-b border-gray-200 inline-block pb-1">Customer Details</h3>
+                            {customerName && <p className="text-lg font-black text-gray-800 mb-1">{customerName}</p>}
+                            <h3 className="text-xs font-bold text-green-700 uppercase tracking-widest mb-2 border-b border-gray-200 inline-block pb-1 mt-4">Service Requested</h3>
                             <p className="text-lg font-black text-gray-800">{t[svcMeta.nameKey]}</p>
                             <p className="text-sm text-gray-600 font-medium">{data.weight} kg Cargo • {data.expectedWaitingHours}h Waiting</p>
                         </div>
@@ -266,6 +270,13 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
 
             {/* Sticky Footer Actions */}
             <div className="absolute bottom-0 left-0 right-0 p-5 bg-white/90 backdrop-blur-sm border-t border-gray-100 space-y-3 print:hidden">
+                <input
+                    type="text"
+                    placeholder="Customer Name (Optional for Print)"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 mb-1"
+                />
                 <div className="flex gap-3">
                     <button
                         onClick={buildWhatsApp}
