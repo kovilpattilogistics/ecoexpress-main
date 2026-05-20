@@ -8,6 +8,7 @@ import { clsx } from 'clsx';
 import { TRANSLATIONS } from '@/lib/translations';
 import RouteMap from '@/components/ui/RouteMap';
 import logoSrc from '@/assets/logo.png';
+import PrintInvoiceTemplate from '@/components/ui/PrintInvoiceTemplate';
 
 interface Props {
     quote: QuoteResult;
@@ -92,7 +93,26 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
     const [customerName, setCustomerName] = useState('');
 
     return (
-        <div className="flex flex-col h-full bg-gray-50 print:bg-white print:h-auto">
+        <>
+        <PrintInvoiceTemplate
+            title="TRIP QUOTE"
+            date={new Date()}
+            customerName={customerName}
+            category={t[svcMeta.nameKey]}
+            distanceKm={quote.distance}
+            weightKg={data.weight}
+            waitingHours={data.expectedWaitingHours}
+            basePrice={selectedBreakdown.base}
+            distanceCharge={selectedBreakdown.distanceCharge}
+            weightCharge={selectedBreakdown.weightCharge}
+            waitingCharge={selectedBreakdown.waitingCharge}
+            extraStopsCharge={selectedBreakdown.stopsCharge}
+            total={selectedBreakdown.total}
+            note={selectedBreakdown.note}
+            waypoints={routeWaypoints}
+            isDriver={false}
+        />
+        <div className="flex flex-col h-full bg-gray-50 print:hidden">
             {/* Header */}
             <div className="bg-white px-5 py-4 shadow-sm z-10 relative print:hidden">
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-400" />
@@ -311,5 +331,6 @@ ${breakdown}  *${t.total}: ₹${bd.total.toLocaleString('en-IN')}*
                 </div>
             </div>
         </div>
+        </>
     );
 }

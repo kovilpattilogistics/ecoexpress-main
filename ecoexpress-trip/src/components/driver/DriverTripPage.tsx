@@ -14,6 +14,7 @@ import {
 import { getRoadDistance } from '@/lib/road-distance';
 import DriverRouteMap from '@/components/driver/DriverRouteMap';
 import logoSrc from '@/assets/logo.png';
+import PrintInvoiceTemplate from '@/components/ui/PrintInvoiceTemplate';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Phase = 'start' | 'active' | 'result';
@@ -281,7 +282,23 @@ ${persisted.stops.length > 0 ? `\n🔴 *Stops:*\n${stopLines}\n` : ''}
     const [customerName, setCustomerName] = useState('');
 
     return (
-        <div className="flex flex-col h-full bg-gray-50 print:bg-white print:h-auto">
+        <>
+        <PrintInvoiceTemplate
+            isDriver={true}
+            title="TRIP INVOICE"
+            date={new Date()}
+            customerName={customerName}
+            category={fare.category}
+            distanceKm={fare.distanceKm}
+            durationStr={formatDuration(totalSeconds)}
+            basePrice={fare.basePrice}
+            extraStopsCharge={fare.extraStopsCharge}
+            extraTimeCharge={fare.extraTimeCharge}
+            total={fare.total}
+            note={fare.note}
+            waypoints={mapWaypoints}
+        />
+        <div className="flex flex-col h-full bg-gray-50 print:hidden">
             {/* Success header */}
             <div className="bg-gradient-to-br from-green-700 via-green-600 to-emerald-500 px-5 pt-6 pb-8 shrink-0 text-center print:hidden">
                 <div className="w-14 h-14 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center mx-auto mb-3">
@@ -291,45 +308,10 @@ ${persisted.stops.length > 0 ? `\n🔴 *Stops:*\n${stopLines}\n` : ''}
                 <p className="text-white/70 text-xs mt-1">Here's your fare summary</p>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4 -mt-4 print:!mt-0 print:overflow-visible print:!p-10 print:block print:bg-white print:border print:border-gray-300 print:m-8 print:rounded-2xl">
-                
-                {/* ── PRINT ONLY INVOICE HEADER ── */}
-                <div className="hidden print:block mb-8">
-                    <div className="flex items-center justify-between border-b-4 border-green-600 pb-4 mb-4 mt-4">
-                        <div className="flex items-center gap-4">
-                            <img src={logoSrc} alt="EcoExpress Logistics" className="w-16 h-16 object-contain" />
-                            <div>
-                                <h1 className="text-2xl font-black text-green-800 tracking-tight">EcoExpress Logistics</h1>
-                                <p className="text-sm text-gray-600 font-medium italic">Clean Water. Fast Delivery. Eco Future.</p>
-                            </div>
-                        </div>
-                        <div className="text-right">
-                            <h2 className="text-3xl font-black text-green-700 uppercase tracking-widest m-0">TRIP INVOICE</h2>
-                            <p className="text-sm font-bold text-gray-600 mt-1">Date: {new Date().toLocaleDateString('en-IN')}</p>
-                        </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-start mb-6">
-                        <div>
-                            <h3 className="text-xs font-bold text-green-700 uppercase tracking-widest mb-2 border-b border-gray-200 inline-block pb-1">Company Details</h3>
-                            <p className="text-sm text-gray-800 font-medium leading-relaxed">
-                                36/A, Valluvar Nagar,<br/>
-                                Kadalaiyur Road, Kovilpatti – 628 501<br/>
-                                Tamil Nadu, India<br/>
-                                📞 +91 63810 65877
-                            </p>
-                        </div>
-                        <div className="text-right">
-                            <h3 className="text-xs font-bold text-green-700 uppercase tracking-widest mb-2 border-b border-gray-200 inline-block pb-1">Customer / Trip Details</h3>
-                            {customerName && <p className="text-lg font-black text-gray-800 mb-1">{customerName}</p>}
-                            <p className="text-sm font-bold text-gray-700">{fare.category}</p>
-                            <p className="text-sm text-gray-600 font-medium">{fare.distanceKm} km • {formatDuration(totalSeconds)}</p>
-                        </div>
-                    </div>
-                </div>
+            <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4 -mt-4">
                 {/* Big price card */}
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-md overflow-hidden print:border-2 print:border-gray-200 print:shadow-none print:rounded-xl">
-                    <div className="px-5 py-5 text-center border-b border-gray-100 print:bg-gray-50">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-md overflow-hidden">
+                    <div className="px-5 py-5 text-center border-b border-gray-100">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{fare.category}</p>
                         <div className="flex items-baseline justify-center gap-1">
                             <span className="text-gray-500 text-xl font-bold">₹</span>
@@ -365,29 +347,25 @@ ${persisted.stops.length > 0 ? `\n🔴 *Stops:*\n${stopLines}\n` : ''}
                 </div>
 
                 {/* Route Map */}
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden print:border-2 print:border-gray-200 print:shadow-none print:mt-8 print:rounded-xl">
-                    <div className="px-4 pt-4 pb-2 flex items-center justify-between print:hidden">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="px-4 pt-4 pb-2 flex items-center justify-between">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Route Verification</p>
                         <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
                             {fare.distanceKm} km road distance
                         </span>
                     </div>
-                    <div className="print:h-[400px]">
+                    <div>
                         <DriverRouteMap waypoints={mapWaypoints} height={220} />
                     </div>
-                    <div className="px-4 py-2 flex gap-4 text-[10px] text-gray-400 border-t border-gray-100 print:hidden">
+                    <div className="px-4 py-2 flex gap-4 text-[10px] text-gray-400 border-t border-gray-100">
                         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500 inline-block" /> Start</span>
                         {persisted.stops.length > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-400 inline-block" /> Stops</span>}
                         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" /> End</span>
                     </div>
-                    <div className="hidden print:flex px-6 py-4 bg-gray-50 items-center justify-between border-t border-gray-200">
-                        <span className="text-sm font-bold text-gray-700 uppercase tracking-widest">Route Verification Map</span>
-                        <span className="text-sm font-black text-green-700">{fare.distanceKm} Total Km</span>
-                    </div>
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-3 print:hidden">
+                <div className="grid grid-cols-3 gap-3">
                     {[
                         { icon: <Clock className="w-4 h-4 text-green-500" />, label: 'Duration', value: formatDuration(totalSeconds) },
                         { icon: <Route className="w-4 h-4 text-orange-500" />, label: 'Distance', value: `${fare.distanceKm} km` },
@@ -402,7 +380,7 @@ ${persisted.stops.length > 0 ? `\n🔴 *Stops:*\n${stopLines}\n` : ''}
                 </div>
 
                 {/* Timeline */}
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 print:hidden">
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Trip Timeline</p>
                     <div className="space-y-3">
                         <TLEntry color="bg-green-500" label="Start" time={fmt(startTime)} coord={`${fmtCoord(persisted.startLat)}, ${fmtCoord(persisted.startLng)}`} />
@@ -415,7 +393,7 @@ ${persisted.stops.length > 0 ? `\n🔴 *Stops:*\n${stopLines}\n` : ''}
             </div>
 
             {/* Footer actions */}
-            <div className="px-5 pb-6 pt-3 space-y-3 shrink-0 bg-white border-t border-gray-100 print:hidden">
+            <div className="px-5 pb-6 pt-3 space-y-3 shrink-0 bg-white border-t border-gray-100">
                 <div className="flex flex-col gap-3">
                     <input
                         type="text"
@@ -450,6 +428,7 @@ ${persisted.stops.length > 0 ? `\n🔴 *Stops:*\n${stopLines}\n` : ''}
                 </button>
             </div>
         </div>
+        </>
     );
 }
 
